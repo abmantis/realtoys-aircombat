@@ -1,0 +1,15 @@
+BlueHighway
+{
+	type 		truetype
+	source 		bluehigh.ttf
+	size 		32
+	resolution 	55
+}
+
+BlueHighway-10
+{
+	type 		truetype
+	source 		bluehigh.ttf
+	size 		32
+	resolution 	55
+}

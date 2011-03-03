@@ -1,0 +1,22 @@
+RealToys/Crosshair_overlay
+{
+	zorder 500
+
+	container Panel(RealToys/Crosshair_overlay/crosshair_container)
+	{
+		metrics_mode pixels
+		
+		horz_align center
+		vert_align cener
+		
+		width 50
+		height 50
+		left -25
+		top -25
+		
+
+		
+		material RealToys/crosshair_material
+    		
+	}
+}

@@ -1,0 +1,37 @@
+RealToys/Healthpanel_overlay
+{
+	zorder 500
+
+	container Panel(RealToys/Healthpanel_overlay/baseplane_container)
+	{
+		metrics_mode pixels
+		
+		horz_align right
+		vert_align bottom
+		
+		width 200
+		height 120
+		left -230
+		top -140
+	
+
+		
+		material RealToys/healthbase_material    		
+	}
+	container Panel(RealToys/Healthpanel_overlay/health_container)
+	{
+		metrics_mode pixels
+		
+		horz_align right
+		vert_align bottom
+		
+		width 200
+		height 120
+		left -230
+		top -140
+	
+		uv_coords 0 0 1 1
+		
+		material RealToys/healthfull_material 
+	}
+}

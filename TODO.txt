@@ -1,0 +1,5 @@
+-Retornar false no UPDATE do Airplane em vez de utilizar isDeleted()
+-Static geometry para modelos/paredes.
+-Tornar DynamicObjectManager threadsafe! (só necessário se utilizar Newton in threads)
+-Engroçar main struct
+-Reborn key (morrer 5seg após pressionar a tecla) 

@@ -1,0 +1,81 @@
+particle_system RealToys/BulletFlyParticles
+{
+	quota	200
+	material	RealToys/Smoke
+	particle_width	0.1
+	particle_height	0.1
+	cull_each	true
+	renderer	billboard
+	sorted	true
+	local_space	true
+	iteration_interval	0
+	nonvisible_update_timeout	0
+	billboard_type	point
+	billboard_origin	center
+	billboard_rotation_type	texcoord
+	common_up_vector	0 1 0
+	point_rendering	false
+	accurate_facing	false
+
+	emitter Point
+	{
+		angle	0
+		colour	0 0 0 1
+		colour_range_start	0 0 0 1
+		colour_range_end	0 0 0 1
+		direction	0 0 1
+		emission_rate	15
+		position	0 0 0
+		velocity	3
+		velocity_min	3
+		velocity_max	3
+		time_to_live	5
+		time_to_live_min	5
+		time_to_live_max	5
+		duration	0
+		duration_min	0
+		duration_max	0
+		repeat_delay	0
+		repeat_delay_min	0
+		repeat_delay_max	0
+	}
+
+	affector ColourImage
+	{
+		image	smokecolors.png
+	}
+
+	affector DeflectorPlane
+	{
+		plane_point	0 0 0
+		plane_normal	0 0 1
+		bounce	0
+	}
+
+	affector Rotator
+	{
+		rotation_speed_range_start	22.5
+		rotation_speed_range_end	45
+		rotation_range_start	0
+		rotation_range_end	360
+	}
+
+	affector Scaler
+	{
+		rate	0
+	}
+
+	affector Scaler
+	{
+		rate	1
+	}
+
+	affector LinearForce
+	{
+		force_vector	0 0 0.5
+		force_application	add
+	}
+}
+
+
+

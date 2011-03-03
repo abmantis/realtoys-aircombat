@@ -1,0 +1,41 @@
+RealToys/PopupMessageOverlay
+{
+	zorder 500
+	// Stats block
+	container BorderPanel(RealToys/PopupMessagePanel)
+	{
+		metrics_mode pixels
+		vert_align center
+		horz_align center
+		left -250 
+		top -50
+		width 500
+		height 100
+		material DebugOverlay/StatsBlockCenter
+        	border_size 1 1 1 1
+        	border_material DebugOverlay/StatsBlockBorder
+        	border_topleft_uv     0.0000 1.0000 0.0039 0.9961
+	    	border_top_uv         0.0039 1.0000 0.9961 0.9961
+	    	border_topright_uv    0.9961 1.0000 1.0000 0.9961
+	    	border_left_uv        0.0000 0.9961 0.0039 0.0039
+	    	border_right_uv       0.9961 0.9961 1.0000 0.0039
+	    	border_bottomleft_uv  0.0000 0.0039 0.0039 0.0000
+        	border_bottom_uv      0.0039 0.0039 0.9961 0.0000
+	    	border_bottomright_uv 0.9961 0.0039 1.0000 0.0000
+
+		    
+		element TextArea(RealToys/PopupMessageText)
+		{
+			metrics_mode pixels
+			vert_align center
+			horz_align left
+			top -20
+			left 10
+			caption test box
+			font_name BlueHighway
+			char_height 40
+			colour_top 0.8 0.8 1.0
+			colour_bottom 0.5 0.5 0.8
+		}					
+	}
+}

@@ -1,0 +1,15 @@
+RealToys/LoadingscreenOverlay
+{
+	zorder 500
+	// Stats block
+	container BorderPanel(RealToys/LoadingscreenPanel)
+	{
+		metrics_mode relative
+		vert_align top
+		horz_align left		
+		width 1
+		height 1
+		material RealToys/loadingscreen_material
+				
+	}
+}

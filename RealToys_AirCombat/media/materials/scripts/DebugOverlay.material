@@ -1,0 +1,53 @@
+
+material DebugOverlay/StatsBlockBorder
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture DebugOverlay_Border.png
+			}
+		}
+	}
+}
+material DebugOverlay/StatsBlockCenter
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture DebugOverlay_Border_Center.png
+			}
+		}
+	}
+}
+
+material DebugOverlay/StatsBreak
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend alpha_blend
+			depth_check off
+
+			texture_unit
+			{
+				texture DebugOverlay_Border_Break.png
+			}
+		}
+	}
+}
