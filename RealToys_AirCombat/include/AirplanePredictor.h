@@ -149,16 +149,16 @@ private:
 	Ogre::Vector3 mCoord1, mCoord2, mCoord3, mCoord4;
 	
 	float mEstimatedDelay;
-	RakNetTime mLastPacketArrive;
-	RakNetTime mTimeSum;
-	RakNetTime mTimeSincePacket;
+	RakNet::Time mLastPacketArrive;
+	RakNet::Time mTimeSum;
+	RakNet::Time mTimeSincePacket;
 
 	float mCurrentT;
 
 	unsigned int mQueueSize;
 
 
-	DataStructures::Queue<RakNetTime> mPacketDelayQueue;	//saves delay times between each packet
+	DataStructures::Queue<RakNet::Time> mPacketDelayQueue;	//saves delay times between each packet
 
 	
 
@@ -309,16 +309,16 @@ private:
 //	Ogre::Vector3 mCoord1, mCoord2, mCoord3, mCoord4;
 //
 //	float mEstimatedDelay;
-//	RakNetTime mLastPacketArrive;
-//	RakNetTime mTimeSum;
-//	RakNetTime mTimeSincePacket;
+//	RakNet::Time mLastPacketArrive;
+//	RakNet::Time mTimeSum;
+//	RakNet::Time mTimeSincePacket;
 //
 //	float mCurrentT;
 //
 //	unsigned int mQueueSize;
 //
 //
-//	DataStructures::Queue<RakNetTime> mPacketDelayQueue;	//saves delay times between each packet
+//	DataStructures::Queue<RakNet::Time> mPacketDelayQueue;	//saves delay times between each packet
 //
 //
 //

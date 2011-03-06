@@ -272,8 +272,8 @@ Airplane::~Airplane(void)
 	mPlaneNode->removeAndDestroyChild(mPropBlurNode->getName());
 	mSceneMgr->getRootSceneNode()->removeAndDestroyChild(mPlaneNode->getName());	
 
-	mSoundMgr->stopSound(mMotorSound->getName());
-	mSoundMgr->destroySound(mMotorSound->getName());
+	mMotorSound->stop();
+	mSoundMgr->destroySound(mMotorSound);
 	
 	delete mShotsMgr;
 }
@@ -345,7 +345,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 
 	Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource("fighter.collision");
 	OgreNewt::CollisionSerializer colSer;
-	mPlaneCollision = colSer.importCollision(dsptr, mWorld);
+	mPlaneCollision = colSer.importCollision(*dsptr.get(), mWorld);
 	//conCollision = boost::dynamic_pointer_cast<OgreNewt::ConvexCollision>( collision );
 
 
@@ -669,10 +669,8 @@ void Airplane::die()
 	}
 
 	mPlaneNode->setVisible(false);
-	if(mMotorSound)
-		mSoundMgr->stopSound(mMotorSound->getName());
-	if(mExplodeSound)
-		mSoundMgr->playSound(mExplodeSound->getName());
+	if(mMotorSound) mMotorSound->stop();
+	if(mExplodeSound) mExplodeSound->play();
 
 	mShot1On = false;
 	mDead = true;
@@ -705,8 +703,7 @@ void Airplane::born(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
 
 	mScoresManager->resetHealth(mOwnerID);
 
-	if(mMotorSound)
-		mSoundMgr->playSound(mMotorSound->getName());
+	if(mMotorSound) mMotorSound->play();
 
 	mDead = false;
 	mDeadSerialized = true;

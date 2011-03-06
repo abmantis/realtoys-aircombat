@@ -51,7 +51,7 @@ mWindow(window), mSceneManager(sceneManager), mCamera(camera), mWorld(world)
 
 	mAirplane = 0;
 
-	mCamera->detatchFromParent();	
+	mCamera->detachFromParent();	
 	mCamNode = mSceneManager->getRootSceneNode()->createChildSceneNode("MainCameraNode");
 	mCamNode->attachObject(mCamera);	
 	mCamera->setPosition(0,0,0);

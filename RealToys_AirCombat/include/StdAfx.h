@@ -37,9 +37,9 @@
 #include "PacketPriority.h"
 #include "RakNetTypes.h"
 #include "RakString.h"
-#include "RakNetworkFactory.h"
 #include "ReplicaManager3.h"
 #include "DS_Queue.h"
+#include "DS_Hash.h"
 #include "GetTime.h"
 
 

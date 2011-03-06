@@ -9,10 +9,10 @@
 #endif
 
 // Boost dependencies
-// Boost is assumed to be at C:\boost_1_35_0 based on the project settings
+// Boost is assumed to be at C:\boost_1_43_0 based on the project settings
 // If this is not where you downloaded boost, change the project settings Configuration Properties / C/C++ / General / Additional Include Directories
 // If you don't have boost, get it from http://www.boost.org/users/download/
-// If you don't want to use boost, use AutoRPC instead which relies on assembly but has fewer features
+// If you don't want to use boost, use RPC4 instead which relies on assembly but has fewer features
 #include "boost/type_traits.hpp"
 #include "boost/function.hpp"
 #include "boost/bind.hpp"
@@ -27,10 +27,19 @@
 #include "boost/fusion/functional/invocation/invoke.hpp"
 #include "boost/type_traits/is_array.hpp"
 
+
+//#include "boost/mpl/push_back.hpp"
+//#include "boost/tuple/tuple.hpp"
+//#include "boost/type_traits/is_array.hpp"
+
+
+
 // Not needed?
 //#include <boost/fusion/container/generation/make_vector.hpp>
 
-
+#include "NetworkIDManager.h"
+#include "NetworkIDObject.h"
+#include "BitStream.h"
 
 namespace RakNet
 {
@@ -97,7 +106,7 @@ static int __RPC3TagHead=0;
 static int __RPC3TagTail=0;
 
 // If this assert hits, then RakNet::_RPC3::Deref was called more times than the argument was passed to the function
-static void __RPC3_Tag_AddHead(RPC3Tag &p)
+static void __RPC3_Tag_AddHead(const RPC3Tag &p)
 {
 	// Update tag if already in array
 	int i;
@@ -299,7 +308,7 @@ struct ReadWithoutNetworkIDPtr
 		else
 			count=1;
 
-		t = new ActualObjectType[count];
+		t = new ActualObjectType[count]();
 		if (isArray)
 		{
 			for (unsigned int i=0; i < count; i++)
@@ -502,7 +511,7 @@ struct WriteBitstream
 		BitSize_t oldReadOffset = t->GetReadOffset();
 		t->ResetReadPointer();
 		bitStream.WriteCompressed(t->GetNumberOfBitsUsed());
-		bitStream << t;
+		bitStream.Write(t);
 		t->SetReadOffset(oldReadOffset);
 	}
 };
@@ -555,7 +564,8 @@ struct WriteWithNetworkIDPtr
 		}
 		for (unsigned int i=0; i < tag.count; i++)
 		{
-			bitStream << t->GetNetworkID();
+			NetworkID inNetworkID=t->GetNetworkID();
+			bitStream << inNetworkID;
 			if (deref)
 			{
 				// skip bytes, write data, go back, write number of bits written, reset cursor

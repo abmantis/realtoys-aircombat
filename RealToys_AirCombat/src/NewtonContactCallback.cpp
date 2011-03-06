@@ -197,11 +197,11 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 				}
 				if(soundToPlay->isPlaying())
 				{
-					mSoundMgr->stopSound(soundToPlay->getName());
+					soundToPlay->stop();
 				}
 					
 				soundToPlay->setPosition(pos);
-				mSoundMgr->playSound(soundToPlay->getName());				
+				soundToPlay->play();				
 			}		
 		}
 		while(actualContact)

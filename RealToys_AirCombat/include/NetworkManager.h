@@ -13,14 +13,14 @@ enum CustomMessageIDTypes
 
 class RT_RM3Connection : public RakNet::Connection_RM3 {
 public:
-	RT_RM3Connection(SystemAddress _systemAddress, RakNetGUID _guid,
+	RT_RM3Connection(RakNet::SystemAddress _systemAddress, RakNet::RakNetGUID _guid,
 		Ogre::SceneManager *sceneMgr, OgreNewt::World *newtWorld) 
 		: RakNet::Connection_RM3(_systemAddress, _guid), 
 		mSceneMgr(sceneMgr), mWorld(newtWorld) {}
 
 	virtual ~RT_RM3Connection() {}
 
-	virtual RakNet::Replica3 *AllocReplica(RakNet::BitStream *allocationId)
+	virtual RakNet::Replica3 *AllocReplica(RakNet::BitStream *allocationId, RakNet::ReplicaManager3 *replicaManager3)
 	{
 		RakNet::RakString typeName;
 		allocationId->Read(typeName);
@@ -42,12 +42,11 @@ class RT_ReplicaManager : public RakNet::ReplicaManager3
 {
 public:
 	RT_ReplicaManager(Ogre::SceneManager *sceneMgr, OgreNewt::World *newtWorld = 0)
-		:RakNet::ReplicaManager3(), mSceneMgr(sceneMgr), mWorld(newtWorld) {}
+		: RakNet::ReplicaManager3(), mSceneMgr(sceneMgr), mWorld(newtWorld) {}
 
 	RT_ReplicaManager(): RakNet::ReplicaManager3(), mSceneMgr(0), mWorld(0) {}
 
-	virtual RakNet::Connection_RM3* AllocConnection(SystemAddress systemAddress,
-		RakNetGUID rakNetGUID) const 
+	virtual RakNet::Connection_RM3* AllocConnection(const RakNet::SystemAddress &systemAddress, RakNet::RakNetGUID rakNetGUID) const 
 	{
 		RakAssert(mSceneMgr != 0);
 		return new RT_RM3Connection(systemAddress, rakNetGUID, mSceneMgr, mWorld);
@@ -62,7 +61,7 @@ private:
 	Ogre::SceneManager *mSceneMgr;
 	OgreNewt::World *mWorld;
 };
-class NetworkManager : public Ogre::Singleton<NetworkManager>, public NetworkIDObject
+class NetworkManager : public Ogre::Singleton<NetworkManager>, public RakNet::NetworkIDObject
 {
 public:
 	NetworkManager(Ogre::SceneManager *sceneManager, OgreNewt::World *newtWorld);
@@ -101,9 +100,9 @@ public:
 	Ogre::String getCurrentMap();
 
 private:
-	RakPeerInterface *mRakPeer;				
-	NetworkIDManager mNetworkIdManager;		// RM3 requires this to lookup pointers from numbers.	
-	NetworkIDManager mRPCIdManager;			// RPC3 requires us to set ids on our classes used by RPC3	
+	RakNet::RakPeerInterface *mRakPeer;				
+	RakNet::NetworkIDManager mNetworkIdManager;		// RM3 requires this to lookup pointers from numbers.	
+	RakNet::NetworkIDManager mRPCIdManager;			// RPC3 requires us to set ids on our classes used by RPC3	
 	RT_ReplicaManager mReplicaManager;		// The RM3 System
 	RakNet::RPC3 mRPC3Inst;					// The RPC3 system
 
@@ -135,7 +134,7 @@ private:
 	void processAirplaneInput(RakNet::RPC3 *rpc, InputActions action, bool pressed);
 
 
-	void recieveCustomPacket(Packet *packet);
+	void recieveCustomPacket(RakNet::Packet *packet);
 	
 
 

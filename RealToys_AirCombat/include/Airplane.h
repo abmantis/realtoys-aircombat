@@ -117,7 +117,7 @@ private:
 	float mTimeSinceLastUpdate;		//time since the last update to the actual on (only used by clients)
 	float mTimeToBornAgain;	
 
-	RakNetTime mTimeLastPosOriPack;
+	RakNet::Time mTimeLastPosOriPack;
 		
 	Ogre::Radian mPropRot;			//propeller rotation on newton each call
 	Ogre::Radian mPropBlurRot;		//propeller blur rotation on newton each call
@@ -159,20 +159,19 @@ public:	//Replica3 functions
 		return RakNet::RakString("Airplane");
 	}
 
-	void WriteAllocationID(RakNet::BitStream *allocationIdBitstream) const
+	void WriteAllocationID(RakNet::Connection_RM3 *destinationConnection, RakNet::BitStream *allocationIdBitstream) const
 	{
 		allocationIdBitstream->Write(GetName());
 	}
 
-	void SerializeConstruction(RakNet::BitStream *constructionBitstream, 
-		RakNet::Connection_RM3 *destinationConnection)
+	void SerializeConstruction(RakNet::BitStream *constructionBitstream, RakNet::Connection_RM3 *destinationConnection)
 	{		
 		RakAssert(mServer);
 		std::cout << "Serializing airplane construction - " << mOwnerID.ToString() << std::endl;
 
 		mBody->getPositionOrientation(mPosition, mOrientation);
 		mVelocity = mBody->getVelocity();
-	
+
 		constructionBitstream->Write(mOwnerID);
 
 		constructionBitstream->Write(mShot1On);
@@ -194,8 +193,7 @@ public:	//Replica3 functions
 		return;
 	}
 
-	bool DeserializeConstruction(RakNet::BitStream *constructionBitstream, 
-		RakNet::Connection_RM3 *sourceConnection)
+	bool DeserializeConstruction(RakNet::BitStream *constructionBitstream, RakNet::Connection_RM3 *sourceConnection)
 	{
 		RakAssert(!mServer);
 		std::cout << "De serializing airplane construction - "; 
@@ -227,15 +225,13 @@ public:	//Replica3 functions
 		return true;
 	}
 
-	void SerializeDestruction(RakNet::BitStream *destructionBitstream, 
-		RakNet::Connection_RM3 *destinationConnection)
+	void SerializeDestruction(RakNet::BitStream *destructionBitstream, RakNet::Connection_RM3 *destinationConnection)
 	{		
 		std::cout << "Serializing destruction" << std::endl;
 		return;
 	}
 
-	bool DeserializeDestruction(RakNet::BitStream *destructionBitstream, 
-		RakNet::Connection_RM3 *sourceConnection)
+	bool DeserializeDestruction(RakNet::BitStream *destructionBitstream, RakNet::Connection_RM3 *sourceConnection)
 	{
 		std::cout << "Deserializing destruction" << std::endl;
 		return true;
@@ -246,6 +242,41 @@ public:	//Replica3 functions
 		mDestructed = true;
 	}
 
+	RakNet::RM3ActionOnPopConnection QueryActionOnPopConnection(RakNet::Connection_RM3 *droppedConnection) const
+	{
+		if (mServer)
+			return QueryActionOnPopConnection_Server(droppedConnection);
+		else
+			return QueryActionOnPopConnection_Client(droppedConnection);
+	}
+
+	
+	//void SerializeConstructionRequestAccepted(RakNet::BitStream *serializationBitstream,
+	//	RakNet::Connection_RM3 *requestingConnection);
+
+	//void DeserializeConstructionRequestAccepted(RakNet::BitStream *serializationBitstream, 
+	//	RakNet::Connection_RM3 *acceptingConnection);
+
+	//void SerializeConstructionRequestRejected(RakNet::BitStream *serializationBitstream,
+	//	RakNet::Connection_RM3 *requestingConnection);
+
+	//void DeserializeConstructionRequestRejected(RakNet::BitStream *serializationBitstream,
+	//	RakNet::Connection_RM3 *rejectingConnection);
+
+	RakNet::RM3ConstructionState QueryConstruction(RakNet::Connection_RM3 *destinationConnection, RakNet::ReplicaManager3 *replicaManager3) 
+	{
+		return QueryConstruction_ServerConstruction(destinationConnection, mServer);
+	}
+	bool QueryRemoteConstruction(RakNet::Connection_RM3 *sourceConnection) 
+	{
+		return QueryRemoteConstruction_ServerConstruction(sourceConnection, mServer);
+	}
+
+	RakNet::RM3QuerySerializationResult QuerySerialization(RakNet::Connection_RM3 *destinationConnection)
+	{
+		return QuerySerialization_ServerSerializable(destinationConnection, mServer);
+	}
+	
 	RakNet::RM3SerializationResult Serialize(RakNet::SerializeParameters *serializeParameters)
 	{
 		RakAssert(mServer);
@@ -277,9 +308,9 @@ public:	//Replica3 functions
 			}
 		}		
 
-		
-				
-		RakNet::BitStream *serBitstream = &serializeParameters->outputBitstream;
+
+
+		RakNet::BitStream *serBitstream = &serializeParameters->outputBitstream[0];
 		serBitstream->WriteCompressed(serMode);
 
 		if(serMode == 0)
@@ -290,7 +321,7 @@ public:	//Replica3 functions
 		{
 			serBitstream->Write(mShot1On);
 			mPrevShot1On = mShot1On;
-			
+
 		}
 		if(serMode & SERMODE_POSORI)
 		{
@@ -313,11 +344,12 @@ public:	//Replica3 functions
 		return RakNet::RM3SR_BROADCAST_IDENTICALLY;
 	}
 
-	
-	void Deserialize(RakNet::BitStream *serializationBitstream,	
-		RakNetTime timeStamp, RakNet::Connection_RM3 *sourceConnection)
+	void Deserialize(RakNet::DeserializeParameters *deserializeParameters)
+//		RakNet::BitStream *serializationBitstream,	RakNet::Time timeStamp, RakNet::Connection_RM3 *sourceConnection)
 	{
 		RakAssert(!mServer);
+
+		RakNet::BitStream *serializationBitstream = deserializeParameters->serializationBitstream;	
 
 		unsigned char serMode;
 		serializationBitstream->ReadCompressed(serMode);
@@ -347,41 +379,15 @@ public:	//Replica3 functions
 
 			mScoresManager->updatePlayer(updatedScoreInfo);
 		}
-		
+
 		if(mDead && mScoreInfo->mCurrentHealth > 0)
 		{
 			born(mPosition, mOrientation);
 		}
-	
+
 	}
 
-	//void SerializeConstructionRequestAccepted(RakNet::BitStream *serializationBitstream,
-	//	RakNet::Connection_RM3 *requestingConnection);
 
-	//void DeserializeConstructionRequestAccepted(RakNet::BitStream *serializationBitstream, 
-	//	RakNet::Connection_RM3 *acceptingConnection);
-
-	//void SerializeConstructionRequestRejected(RakNet::BitStream *serializationBitstream,
-	//	RakNet::Connection_RM3 *requestingConnection);
-
-	//void DeserializeConstructionRequestRejected(RakNet::BitStream *serializationBitstream,
-	//	RakNet::Connection_RM3 *rejectingConnection);
-
-	RakNet::RM3ConstructionState QueryConstruction(RakNet::Connection_RM3 *destinationConnection, 
-		RakNet::ReplicaManager3 *replicaManager3) 
-	{
-		return QueryConstruction_ServerConstruction(destinationConnection);
-	}
-	bool QueryRemoteConstruction(RakNet::Connection_RM3 *sourceConnection) 
-	{
-		return QueryRemoteConstruction_ServerConstruction(sourceConnection);
-	}
-
-	bool QuerySerialization(RakNet::Connection_RM3 *destinationConnection)
-	{
-		return QuerySerialization_ServerSerializable(destinationConnection);
-	}
-	
 };
 
 enum Airplane_Params

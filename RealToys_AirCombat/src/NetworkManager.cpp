@@ -13,8 +13,8 @@ NetworkManager::NetworkManager(Ogre::SceneManager *sceneManager, OgreNewt::World
 bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String serverIP)	
 {
 	mServer = isServer; 	
-	RakNetTime waitTime = 5000;
-	RakNetTime prevTime = 0;
+	RakNet::Time waitTime = 5000;
+	RakNet::Time prevTime = 0;
 	if(isServer)
 	{
 		Ogre::LogManager::getSingletonPtr()
@@ -35,8 +35,8 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 	mConnectAtemp = false;
 	mWaitForPong = false;
 
-	SocketDescriptor sd;
-	mRakPeer = RakNetworkFactory::GetRakPeerInterface();
+	RakNet::SocketDescriptor sd;
+	mRakPeer = RakNet::RakPeerInterface::GetInstance();
 	
 	if(isServer)
 	{
@@ -53,25 +53,24 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 	
 
 	// The network ID authority is the system that creates the common numerical identifier used to lookup pointers (the server here).
-	mNetworkIdManager.SetIsNetworkIDAuthority(isServer);
+	//mNetworkIdManager.SetIsNetworkIDAuthority(isServer);
 	// ObjectMemberRPC, AutoRPC for objects, and ReplicaManager3 require that you call SetNetworkIDManager()
-	mRakPeer->SetNetworkIDManager(&mNetworkIdManager);
+	mReplicaManager.SetNetworkIDManager(&mNetworkIdManager);
 
 	// Setup RPC3 system and classes 
-	mRPCIdManager.SetIsNetworkIDAuthority(true);
+	//mRPCIdManager.SetIsNetworkIDAuthority(true);
 	mRPC3Inst.SetNetworkIDManager(&mRPCIdManager);
 	
 	this->SetNetworkIDManager(&mRPCIdManager);
 
-	NetworkID id0;
-	id0.localSystemAddress = 0;
+	RakNet::NetworkID id0 = 0;
 	this->SetNetworkID(id0);
 	RPC3_REGISTER_FUNCTION(&mRPC3Inst, &NetworkManager::createAirplane);
 	RPC3_REGISTER_FUNCTION(&mRPC3Inst, &NetworkManager::processAirplaneInput);
 	
 		
 	// Start RakNet, up to 32 connections if the server
-	if(!mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, 0, &sd, 1))
+	if(!mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, &sd, 1))
 	{
 		if(isServer)
 		{
@@ -172,7 +171,7 @@ NetworkManager::~NetworkManager(void)
 	Ogre::LogManager::getSingletonPtr()
 		->logMessage(RealToys::logMessagePrefix + "Connection shutting down (destroying)");
 	mRakPeer->Shutdown(100,0, HIGH_PRIORITY);
-	RakNetworkFactory::DestroyRakPeerInterface(mRakPeer);
+	RakNet::RakPeerInterface::DestroyInstance(mRakPeer);
 }
 
 NetworkManager& NetworkManager::getSingleton(void)
@@ -189,7 +188,7 @@ bool NetworkManager::update()
 	if(!mIsStarted)
 		return true;
 
-	Packet *packet;	
+	RakNet::Packet *packet;	
 	for (packet = mRakPeer->Receive(); packet; 
 		mRakPeer->DeallocatePacket(packet), packet = mRakPeer->Receive())
 	{
@@ -231,7 +230,7 @@ bool NetworkManager::update()
 				RakNet::RakString mapVersion(GameLoadSaveManager::getSingletonPtr()->GetMapVersion().c_str());
 								
 				
-				bStream.Write((MessageID)CUSTOMID_MAP_NAME);
+				bStream.Write((RakNet::MessageID)CUSTOMID_MAP_NAME);
 				bStream.Write(mapName);
 				bStream.Write(mapVersion);
 				mRakPeer->Send(&bStream, LOW_PRIORITY, RELIABLE, 0, packet->systemAddress, false);
@@ -275,12 +274,12 @@ bool NetworkManager::update()
 				return false;
 			}
 			break;
-		case ID_PONG:
+		case ID_UNCONNECTED_PONG:
 			// Found the server
 			if(!upAndRunning && mWaitForPong)			
 			{
 				mWaitForPong = false;
-				if(!mRakPeer->Connect(packet->systemAddress.ToString(false),packet->systemAddress.port,0,0,0))
+				if(!mRakPeer->Connect(packet->systemAddress.ToString(false),packet->systemAddress.GetPort(),0,0,0))
 				{
 					Ogre::LogManager::getSingletonPtr()
 						->logMessage(RealToys::logMessagePrefix + "Client peer connect failed");
@@ -301,7 +300,7 @@ bool NetworkManager::update()
 }
 
 
-void NetworkManager::recieveCustomPacket(Packet *packet)
+void NetworkManager::recieveCustomPacket(RakNet::Packet *packet)
 {
 	RakNet::BitStream myBitStream(packet->data, packet->length, false); // The false is for efficiency so we don't make a copy of the passed data
 	unsigned char typeId;

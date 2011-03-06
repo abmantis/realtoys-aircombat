@@ -57,16 +57,12 @@ void InputMappingManager::initialise( Ogre::RenderWindow *renderWindow ) {
 		mInputSystem = OIS::InputManager::createInputSystem( paramList );
 
 		// If possible create a buffered keyboard
-		// (note: if below line doesn't compile, try:  if (mInputSystem->getNumberOfDevices(OIS::OISKeyboard) > 0) {
-		if( mInputSystem->numKeyboards() > 0 ) {
-		//if (mInputSystem->getNumberOfDevices(OIS::OISKeyboard) > 0) {
+		if( mInputSystem->getNumberOfDevices(OIS::OISKeyboard) > 0 ) {
 			mKeyboard = static_cast<OIS::Keyboard*>( mInputSystem->createInputObject( OIS::OISKeyboard, true ) );
 		}
 
 		// If possible create a buffered mouse
-		// (note: if below line doesn't compile, try:  if (mInputSystem->getNumberOfDevices(OIS::OISMouse) > 0) {
-		if( mInputSystem->numMice() > 0 ) {
-		//if (mInputSystem->getNumberOfDevices(OIS::OISMouse) > 0) {
+		if( mInputSystem->getNumberOfDevices(OIS::OISMouse) > 0 ) {
 			mMouse = static_cast<OIS::Mouse*>( mInputSystem->createInputObject( OIS::OISMouse, true ) );
 
 			// Get window size
@@ -79,11 +75,8 @@ void InputMappingManager::initialise( Ogre::RenderWindow *renderWindow ) {
 		}
 
 		// If possible create all joysticks in buffered mode
-		// (note: if below line doesn't compile, try:  if (mInputSystem->getNumberOfDevices(OIS::OISJoyStick) > 0) {
-		if( mInputSystem->numJoySticks() > 0 ) {
-		//if (mInputSystem->getNumberOfDevices(OIS::OISJoyStick) > 0) {
-			mJoysticks.resize( mInputSystem->numJoySticks() );
-			//mJoysticks.resize( mInputSystem->getNumberOfDevices(OIS::OISJoyStick) );
+		if( mInputSystem->getNumberOfDevices(OIS::OISJoyStick) > 0 ) {
+			mJoysticks.resize( mInputSystem->getNumberOfDevices(OIS::OISJoyStick) );
 
 			itJoystick	= mJoysticks.begin();
 			itJoystickEnd = mJoysticks.end();

@@ -72,11 +72,11 @@ ShotsManager::~ShotsManager(void)
 		Ogre::Entity* shotEntity = mShotEntitiesStack.top();
 		mShotEntitiesStack.pop();
 
-		shotEntity->detatchFromParent();
+		shotEntity->detachFromParent();
 		mSceneMgr->destroyEntity(shotEntity);
 	}
 
-	mSoundMgr->stopSound(mShotSound->getName());
+	mShotSound->stop();
 	mSoundMgr->destroySound(mShotSound->getName());
 }
 
@@ -103,7 +103,7 @@ void ShotsManager::fire(float timeSinceLastCall, Ogre::Vector3 position, Ogre::Q
 
 			if(!mIsSoundPlaying)
 			{
-				mSoundMgr->playSound(mShotSound->getName());
+				mShotSound->play();
 				mIsSoundPlaying = true;		
 			}				
 
@@ -115,7 +115,7 @@ void ShotsManager::fire(float timeSinceLastCall, Ogre::Vector3 position, Ogre::Q
 			//if it has come to this point is because it didn't fire for some reason
 			if(mIsSoundPlaying)
 			{				
-				mSoundMgr->pauseSound(mShotSound->getName());
+				mShotSound->pause();
 				mIsSoundPlaying = false;		
 			}
 		}
@@ -147,6 +147,6 @@ void ShotsManager::createMaterials()
 void ShotsManager::stopFireSound()
 {
 	if(mIsSoundPlaying)
-		mSoundMgr->pauseSound(mShotSound->getName());
+		mShotSound->pause();
 	mIsSoundPlaying = false;
 }

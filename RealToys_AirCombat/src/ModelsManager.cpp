@@ -90,7 +90,7 @@ Ogre::SceneNode* ModelsManager::addModel(Ogre::String mesh, Ogre::Vector3 adjust
 	try
 	{
 		Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource(collisionFileName);		
-		col = colSer.importCollision(dsptr, mWorld);
+		col = colSer.importCollision(*dsptr.getPointer(), mWorld);
 	}
 	catch (Ogre::Exception e)
 	{
