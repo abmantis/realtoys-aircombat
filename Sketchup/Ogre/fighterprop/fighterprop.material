@@ -1,0 +1,39 @@
+material 1_Material3
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.858823529411765 0.756862745098039 0.0
+      diffuse 0.858823529411765 0.756862745098039 0.0
+      specular 1.0 0.908235294117647 0.0 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}
+material 2_Material5
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.8 0.0 0.0
+      diffuse 0.8 0.0 0.0
+      specular 0.96 0.0 0.0 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}
+material SketchupDefault
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.8 0.8 0.8
+      diffuse 0.8 0.8 0.8
+      specular 0.96 0.96 0.96 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}

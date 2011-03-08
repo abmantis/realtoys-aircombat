@@ -1,0 +1,52 @@
+material 1_0020_Red
+{
+  technique
+  {
+    pass
+    {
+      ambient 1.0 0.0 0.0
+      diffuse 1.0 0.0 0.0
+      specular 1.0 0.0 0.0 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}
+material 2_0065_Lime
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.0 1.0 0.0
+      diffuse 0.0 1.0 0.0
+      specular 0.0 1.0 0.0 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}
+material 3_0103_Blue
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.0 0.0 1.0
+      diffuse 0.0 0.0 1.0
+      specular 0.0 0.0 1.0 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}
+material SketchupDefault
+{
+  technique
+  {
+    pass
+    {
+      ambient 0.8 0.8 0.8
+      diffuse 0.8 0.8 0.8
+      specular 0.96 0.96 0.96 15.0
+      emissive 0.0 0.0 0.0
+    }
+  }
+}

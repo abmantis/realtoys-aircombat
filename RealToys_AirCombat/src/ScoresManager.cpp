@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ScoresManager.h"
+#include "NetworkManager.h"
 
 ScoresManager::ScoresManager()
 {
@@ -204,9 +205,10 @@ void ScoresManager::setLocalSysAddress(PlayerID id)
 		if(testInfo)
 			mLocalInfo = testInfo;
 
-		if(id == RealToys::serverPlayerID)
+		/*if(id == RealToys::serverPlayerID)
 			mServer = true;
 		else
-			mServer = false;
+			mServer = false;*/
+		mServer = NetworkManager::getSingletonPtr()->isServer();
 	}
 }

@@ -1,7 +1,7 @@
 #ifndef REALTOYSSHARED_H
 #define REALTOYSSHARED_H
 
-#define PlayerID RakNet::SystemAddress		//easy to change ID type
+#define PlayerID RakNet::RakNetGUID //easy to change ID type
 
 namespace RealToys
 {
@@ -22,7 +22,7 @@ namespace RealToys
 
 	static const Ogre::String	logMessagePrefix			=	"[**REALTOYS_AC LOG**] ";
 
-	static const PlayerID		serverPlayerID				=	RakNet::SystemAddress( (unsigned int)0, 0);
+	//static const PlayerID		serverPlayerID				=	RakNet::SystemAddress( "0.0.0.0", 0);
 #pragma endregion
 
 	enum QueryFlags

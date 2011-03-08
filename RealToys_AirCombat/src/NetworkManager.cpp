@@ -70,8 +70,9 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 	
 		
 	// Start RakNet, up to 32 connections if the server
-	if(!mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, &sd, 1))
+	if(mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, &sd, 1) != RakNet::RAKNET_STARTED)
 	{
+		// TODO: user the Startup return codes to log the problem 
 		if(isServer)
 		{
 			Ogre::LogManager::getSingletonPtr()
@@ -90,12 +91,14 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 	mRakPeer->AttachPlugin(&mReplicaManager);
 	mRakPeer->AttachPlugin(&mRPC3Inst);
 
+	mNetworkID = mRakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+
 	// The server should allow systems to connect. Clients do not need to unless we want to transmit messages directly between systems or to use RakVoice
 	if (isServer)
 	{
 //		mRakPeer->SetMaximumIncomingConnections(RealToys::maxClients-1);
 		mRakPeer->SetMaximumIncomingConnections(0);		//will not accept connections until setCurrentMap is called
-		mNetworkID = RealToys::serverPlayerID;		
+		//mNetworkID = RealToys::serverPlayerID;		
 	}
 	else
 	{
@@ -213,8 +216,8 @@ bool NetworkManager::update()
 				"ID_CONNECTION_REQUEST_ACCEPTED" );
 			if(!mServer)
 			{
-				//this is a client, get the client external address relative to server
-				mNetworkID = mRakPeer->GetExternalID(packet->systemAddress);
+				////this is a client, get the client external address relative to server
+				//mNetworkID = mRakPeer->GetExternalID(packet->systemAddress);
 				mConnectAtemp = false;
 			}
 			upAndRunning = true;
@@ -242,7 +245,7 @@ bool NetworkManager::update()
 				Ogre::String id = packet->systemAddress.ToString();
 				Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix +
 					"ID_DISCONNECTION_NOTIFICATION from client " + id );
-				mAirplaneManager->destroyAirplane(packet->systemAddress);
+				mAirplaneManager->destroyAirplane(packet->guid);
 					
 			}
 			else
@@ -262,7 +265,7 @@ bool NetworkManager::update()
 				Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix +
 					"ID_CONNECTION_LOST from client " + id,
 					Ogre::LML_CRITICAL);
-				mAirplaneManager->destroyAirplane(packet->systemAddress);
+				mAirplaneManager->destroyAirplane(packet->guid);
 			}
 			else
 			{
@@ -345,7 +348,7 @@ void NetworkManager::createAirplane(RakNet::RPC3 *rpc)
 			->logMessage(RealToys::logMessagePrefix + "Airplane creation requested (from remote source)" );
 		if(mAirplaneManager->canHaveMoreAirplanes())
 		{
-			plane = mAirplaneManager->createAirplane(rpc->GetLastSenderAddress());
+			plane = mAirplaneManager->createAirplane(mRakPeer->GetGuidFromSystemAddress(rpc->GetLastSenderAddress()));
 			mReplicaManager.Reference(plane);
 		}
 		else
@@ -390,7 +393,7 @@ void NetworkManager::processAirplaneInput(RakNet::RPC3 *rpc, InputActions action
 
 	if(rpc)
 	{
-		mAirplaneManager->applyInput(rpc->GetLastSenderAddress(), action, pressed);
+		mAirplaneManager->applyInput(mRakPeer->GetGuidFromSystemAddress(rpc->GetLastSenderAddress()), action, pressed);
 	}
 	else
 		mAirplaneManager->applyInput(mNetworkID, action, pressed);		

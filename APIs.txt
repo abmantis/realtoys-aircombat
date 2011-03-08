@@ -1,0 +1,4 @@
+Newton 2.24 (or another, if supported by OgreNewt)
+Ogre 1.7.2 (should be no problem if we use the latest because there are no big interface-braking changes :D)
+OpenAL 1.1 (or another, if supported by OgreOggSound)
+RakNet 4.014 

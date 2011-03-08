@@ -345,7 +345,9 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 
 	Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource("fighter.collision");
 	OgreNewt::CollisionSerializer colSer;
-	mPlaneCollision = colSer.importCollision(*dsptr.get(), mWorld);
+	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
+	mPlaneCollision = colSer.importCollision((*dsptr.getPointer()), mWorld);
+
 	//conCollision = boost::dynamic_pointer_cast<OgreNewt::ConvexCollision>( collision );
 
 
