@@ -5,6 +5,145 @@
 #include "NewtonMaterialManager.h"
 #include "ScoresManager.h"
 
+int vertFromSubMesh(Ogre::SubMesh *subMesh, Ogre::Vector3 scale, Ogre::Vector3 *&verts)
+{
+	Ogre::SubMesh* sub_mesh = subMesh;
+	Ogre::Mesh * mesh = sub_mesh->parent;
+
+	size_t total_verts = 0;
+
+	Ogre::VertexData* v_data;
+	bool addedShared = false;
+
+	if (sub_mesh->useSharedVertices)
+	{
+
+		v_data = mesh->sharedVertexData;
+		total_verts = v_data->vertexCount;
+		addedShared = true;
+	}
+	else
+	{
+		v_data = sub_mesh->vertexData;
+		total_verts = v_data->vertexCount;
+	}
+
+	//make array to hold vertex positions!
+	Ogre::Vector3* vertices = new Ogre::Vector3[total_verts];
+	unsigned int offset = 0;
+
+
+	Ogre::VertexDeclaration* v_decl;
+	const Ogre::VertexElement* p_elem;
+	float* v_Posptr;
+
+	v_decl = v_data->vertexDeclaration;
+	p_elem = v_decl->findElementBySemantic( Ogre::VES_POSITION );
+
+
+
+	if (v_data)
+	{
+		size_t start = v_data->vertexStart;
+		//pointer
+		Ogre::HardwareVertexBufferSharedPtr v_sptr = v_data->vertexBufferBinding->getBuffer( p_elem->getSource() );
+		unsigned char* v_ptr = static_cast<unsigned char*>(v_sptr->lock( Ogre::HardwareBuffer::HBL_READ_ONLY ));
+		unsigned char* v_offset;
+
+		//loop through vertex data...
+		for (size_t j=start; j<(start+total_verts); j++)
+		{
+			//get offset to Position data!
+			v_offset = v_ptr + (j * v_sptr->getVertexSize());
+			p_elem->baseVertexPointerToElement( v_offset, &v_Posptr );
+
+			//now get vertex positions...
+			vertices[offset].x = *v_Posptr; v_Posptr++;
+			vertices[offset].y = *v_Posptr; v_Posptr++;
+			vertices[offset].z = *v_Posptr; v_Posptr++;
+
+			vertices[offset] *= scale;
+
+			offset++;
+		}
+
+		//unlock buffer
+		v_sptr->unlock();
+	}
+
+	verts = vertices;
+	return total_verts;	
+
+}
+void createPlaneColisionFromMesh(Ogre::Entity* ent, OgreNewt::World* world)
+{
+	Ogre::Vector3 *vertex;
+	int vertcount;
+
+	std::vector<OgreNewt::CollisionPtr> collVector;
+	OgreNewt::ConvexCollisionPtr conColl;
+	OgreNewt::CollisionPtr collision;
+
+	//tailturn = 11
+	vertcount = vertFromSubMesh(ent->getSubEntity(11)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 2 ));
+	collVector.push_back(conColl);
+	//airsucker+cokpit = 5
+	vertcount = vertFromSubMesh(ent->getSubEntity(5)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 5));
+	collVector.push_back(conColl);
+	//mainbody = 4
+	vertcount = vertFromSubMesh(ent->getSubEntity(4)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 1));
+	collVector.push_back(conColl);
+	//tailwings = 8
+	vertcount = vertFromSubMesh(ent->getSubEntity(8)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 0.01));
+	collVector.push_back(conColl);
+	//leftwing = 2
+	vertcount = vertFromSubMesh(ent->getSubEntity(2)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
+	collVector.push_back(conColl);
+	//rightwing = 3
+	vertcount = vertFromSubMesh(ent->getSubEntity(3)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
+	collVector.push_back(conColl);
+	//wingdetails = 7
+	vertcount = vertFromSubMesh(ent->getSubEntity(7)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
+		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 10));
+	collVector.push_back(conColl);
+
+	//motor
+	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::ChamferCylinder(world,
+		2.5, 0.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,1,0)) , Ogre::Vector3(0,0,6.2)) );
+	collVector.push_back(collision);
+
+	//left landing gear
+	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(world, 
+		0.6, 2.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
+		Ogre::Vector3(2.9,-1.25,1.75)));
+	collVector.push_back(collision);
+
+	//right landing gear
+	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(world, 
+		0.6, 2.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
+		Ogre::Vector3(-2.6,-1.25,1.75)));
+	collVector.push_back(collision);
+
+	OgreNewt::CollisionPtr col( new OgreNewt::CollisionPrimitives::CompoundCollision(world, collVector, 0));
+
+	OgreNewt::CollisionSerializer colSer;
+	colSer.exportCollision(col, ".\\..\\..\\media\\models\\fighter.collision");
+
+};
+
 Airplane::Airplane(Ogre::SceneManager *sceneManager, OgreNewt::World *world, bool onServer):
 mSceneMgr(sceneManager), mWorld(world), mServer(onServer)
 {		
@@ -343,6 +482,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 
 	mPlaneCreated = true;
 
+	createPlaneColisionFromMesh(mSceneMgr->createEntity("fightercollision.mesh"), mWorld);
 	Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource("fighter.collision");
 	OgreNewt::CollisionSerializer colSer;
 	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
@@ -717,141 +857,3 @@ void Airplane::setShot1On( bool on )
 	if(!on) 
 		mShotsMgr->stopFireSound(); 
 }
-//int vertFromSubMesh(Ogre::SubMesh *subMesh, Ogre::Vector3 scale, Ogre::Vector3 *&verts)
-//{
-//	Ogre::SubMesh* sub_mesh = subMesh;
-//	Ogre::Mesh * mesh = sub_mesh->parent;
-//	
-//	size_t total_verts = 0;
-//
-//	Ogre::VertexData* v_data;
-//	bool addedShared = false;
-//
-//	if (sub_mesh->useSharedVertices)
-//	{
-//		
-//		v_data = mesh->sharedVertexData;
-//		total_verts = v_data->vertexCount;
-//		addedShared = true;
-//	}
-//	else
-//	{
-//		v_data = sub_mesh->vertexData;
-//		total_verts = v_data->vertexCount;
-//	}
-//	
-//	//make array to hold vertex positions!
-//	Ogre::Vector3* vertices = new Ogre::Vector3[total_verts];
-//	unsigned int offset = 0;
-//
-//
-//	Ogre::VertexDeclaration* v_decl;
-//	const Ogre::VertexElement* p_elem;
-//	float* v_Posptr;
-//
-//	v_decl = v_data->vertexDeclaration;
-//	p_elem = v_decl->findElementBySemantic( Ogre::VES_POSITION );
-//
-//	
-//
-//	if (v_data)
-//	{
-//		size_t start = v_data->vertexStart;
-//		//pointer
-//		Ogre::HardwareVertexBufferSharedPtr v_sptr = v_data->vertexBufferBinding->getBuffer( p_elem->getSource() );
-//		unsigned char* v_ptr = static_cast<unsigned char*>(v_sptr->lock( Ogre::HardwareBuffer::HBL_READ_ONLY ));
-//		unsigned char* v_offset;
-//
-//		//loop through vertex data...
-//		for (size_t j=start; j<(start+total_verts); j++)
-//		{
-//			//get offset to Position data!
-//			v_offset = v_ptr + (j * v_sptr->getVertexSize());
-//			p_elem->baseVertexPointerToElement( v_offset, &v_Posptr );
-//
-//			//now get vertex positions...
-//			vertices[offset].x = *v_Posptr; v_Posptr++;
-//			vertices[offset].y = *v_Posptr; v_Posptr++;
-//			vertices[offset].z = *v_Posptr; v_Posptr++;
-//
-//			vertices[offset] *= scale;
-//
-//			offset++;
-//		}
-//
-//		//unlock buffer
-//		v_sptr->unlock();
-//	}
-//
-//	verts = vertices;
-//	return total_verts;	
-//	
-//}
-//
-
-
-
-	//Ogre::Vector3 *vertex;
-	//int vertcount;
-
-	//
-
-	//std::vector<OgreNewt::CollisionPtr> collVector;
-
-	////tailturn = 12
-	//vertcount = vertFromSubMesh(ent->getSubEntity(12)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 2 ));
-	//collVector.push_back(conColl);
-	////airsucker+cokpit = 11
-	//vertcount = vertFromSubMesh(ent->getSubEntity(11)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 5));
-	//collVector.push_back(conColl);
-	////mainbody = 5
-	//vertcount = vertFromSubMesh(ent->getSubEntity(5)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 1));
-	//collVector.push_back(conColl);
-	////tailwings = 0
-	//vertcount = vertFromSubMesh(ent->getSubEntity(0)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 0.01));
-	//collVector.push_back(conColl);
-	////leftwing = 4
-	//vertcount = vertFromSubMesh(ent->getSubEntity(4)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
-	//collVector.push_back(conColl);
-	////rightwing = 13
-	//vertcount = vertFromSubMesh(ent->getSubEntity(13)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
-	//collVector.push_back(conColl);
-	////wingdetails = 7
-	//vertcount = vertFromSubMesh(ent->getSubEntity(7)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
-	//conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, 
-	//	vertex, vertcount, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 10));
-	//collVector.push_back(conColl);
-
-	////motor
-	//collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::ChamferCylinder( mWorld,
-	//	2.5, 0.5, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,1,0)) , Ogre::Vector3(0,0,6.2)) );
-	//collVector.push_back(collision);
-
-	////left landing gear
-	//collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(mWorld, 
-	//	0.6, 2.5, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
-	//	Ogre::Vector3(2.9,-1.25,1.75)));
-	//collVector.push_back(collision);
-
-	////right landing gear
-	//collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(mWorld, 
-	//	0.6, 2.5, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
-	//	Ogre::Vector3(-2.6,-1.25,1.75)));
-	//collVector.push_back(collision);
-
-	//OgreNewt::CollisionPtr col( new OgreNewt::CollisionPrimitives::CompoundCollision(mWorld, collVector));
-
-	//OgreNewt::CollisionSerializer colSer;
-	//colSer.exportCollision(col, "fighter.collision");
