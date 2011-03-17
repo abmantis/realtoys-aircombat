@@ -68,7 +68,7 @@ public:
 	~NetworkManager(void);
 
 	bool start(bool isServer, Ogre::ushort serverPort, Ogre::String serverIP);
-
+	
 	bool isUpAndRunning() { return upAndRunning; }
 	bool isServer() { return mServer; }
 
@@ -133,8 +133,10 @@ private:
 	*/
 	void processAirplaneInput(RakNet::RPC3 *rpc, InputActions action, bool pressed);
 
-
 	void recieveCustomPacket(RakNet::Packet *packet);
+
+	bool doStartup(bool isServer, RakNet::SocketDescriptor sd);
+	bool doConnect(Ogre::String serverIP, Ogre::ushort serverPort);
 	
 
 

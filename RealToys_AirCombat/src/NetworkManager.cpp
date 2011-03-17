@@ -13,7 +13,7 @@ NetworkManager::NetworkManager(Ogre::SceneManager *sceneManager, OgreNewt::World
 bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String serverIP)	
 {
 	mServer = isServer; 	
-	RakNet::Time waitTime = 5000;
+	RakNet::Time waitTime = 10000;
 	RakNet::Time prevTime = 0;
 	if(isServer)
 	{
@@ -70,23 +70,10 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 	
 		
 	// Start RakNet, up to 32 connections if the server
-	if(mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, &sd, 1) != RakNet::RAKNET_STARTED)
+	if(!doStartup(isServer, sd))
 	{
-		// TODO: user the Startup return codes to log the problem 
-		if(isServer)
-		{
-			Ogre::LogManager::getSingletonPtr()
-				->logMessage(RealToys::logMessagePrefix 
-				+ "Peer startup failed (another server running?)");
-		}
-		else
-		{
-			Ogre::LogManager::getSingletonPtr()
-				->logMessage(RealToys::logMessagePrefix + "Peer startup failed");
-		}		
 		return false;
-	}
-	
+	}	
 	
 	mRakPeer->AttachPlugin(&mReplicaManager);
 	mRakPeer->AttachPlugin(&mRPC3Inst);
@@ -119,19 +106,19 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 		}
 		else
 		{
-			if(!mRakPeer->Connect(serverIP.c_str(), serverPort, 0, 0, 0))
+			if(!doConnect(serverIP, serverPort))
 			{
-				Ogre::LogManager::getSingletonPtr()
-					->logMessage(RealToys::logMessagePrefix + "Client peer connect failed");
 				return false;
 			}
-			mConnectAtemp = true;
-		}
-		
+		}		
 	}
 
 	mIsStarted = true;
-	if(!isServer)
+	if(isServer)
+	{
+		upAndRunning = true;
+	}
+	else
 	{
 		Ogre::LogManager::getSingletonPtr()
 			->logMessage(RealToys::logMessagePrefix + "Trying to connect to server" );
@@ -143,10 +130,6 @@ bool NetworkManager::start(bool isServer, Ogre::ushort serverPort, Ogre::String 
 			waitTime-=(RakNet::GetTime()-prevTime);
 			prevTime = RakNet::GetTime();
 		}
-	}
-	else
-	{
-		upAndRunning = true;
 	}
 
 	
@@ -334,6 +317,117 @@ void NetworkManager::recieveCustomPacket(RakNet::Packet *packet)
 	default:
 		break;
 	}
+}
+
+bool NetworkManager::doStartup(bool isServer, RakNet::SocketDescriptor sd)
+{
+	// Start RakNet, up to 32 connections if the server
+	switch(mRakPeer->Startup(isServer ? (RealToys::maxClients-1) : 1, &sd, 1))
+	{
+	case RakNet::RAKNET_STARTED:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "RAKNET_STARTED");
+			return true;
+			break;
+		}
+	case RakNet::RAKNET_ALREADY_STARTED:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "RAKNET_ALREADY_STARTED");
+			break;
+		}
+	case RakNet::INVALID_SOCKET_DESCRIPTORS:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "INVALID_SOCKET_DESCRIPTORS");
+			break;
+		}
+	case RakNet::INVALID_MAX_CONNECTIONS:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "INVALID_MAX_CONNECTIONS");
+			break;
+		}
+	case RakNet::SOCKET_FAMILY_NOT_SUPPORTED:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "SOCKET_FAMILY_NOT_SUPPORTED");
+			break;
+		}
+	case RakNet::SOCKET_PORT_ALREADY_IN_USE:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "SOCKET_PORT_ALREADY_IN_USE");
+			break;
+		}
+	case RakNet::SOCKET_FAILED_TO_BIND:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "SOCKET_FAILED_TO_BIND");
+			break;
+		}
+	case RakNet::SOCKET_FAILED_TEST_SEND:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "SOCKET_FAILED_TEST_SEND");
+			break;
+		}
+	case RakNet::FAILED_TO_CREATE_NETWORK_THREAD:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "FAILED_TO_CREATE_NETWORK_THREAD");
+			break;
+		}
+	}
+	return false;
+}
+bool NetworkManager::doConnect( Ogre::String serverIP, Ogre::ushort serverPort )
+{
+	mConnectAtemp = true;
+
+	switch(mRakPeer->Connect(serverIP.c_str(), serverPort, 0, 0, 0))
+	{
+	case RakNet::CONNECTION_ATTEMPT_STARTED:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "CONNECTION_ATTEMPT_STARTED");
+			return true;
+			break;
+		}
+	case RakNet::INVALID_PARAMETER:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "INVALID_PARAMETER");
+			break;
+		}
+	case RakNet::CANNOT_RESOLVE_DOMAIN_NAME:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "CANNOT_RESOLVE_DOMAIN_NAME");
+			break;
+		}
+	case RakNet::ALREADY_CONNECTED_TO_ENDPOINT:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "ALREADY_CONNECTED_TO_ENDPOINT");
+			break;
+		}
+	case RakNet::CONNECTION_ATTEMPT_ALREADY_IN_PROGRESS:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "CONNECTION_ATTEMPT_ALREADY_IN_PROGRESS");
+			break;
+		}
+	case RakNet::SECURITY_INITIALIZATION_FAILED:
+		{
+			Ogre::LogManager::getSingletonPtr()
+				->logMessage(RealToys::logMessagePrefix + "SECURITY_INITIALIZATION_FAILED");
+			break;
+		}
+	}
+
+	return false;	
 }
 
 void NetworkManager::createAirplane(RakNet::RPC3 *rpc)
