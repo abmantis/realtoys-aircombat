@@ -7,6 +7,9 @@ OgreFrameClass::OgreFrameClass()
 	mFrameListener = 0;
 	mWindowListener = 0;
 	mRoot = 0;
+
+	mWindow = NULL;
+	mWindow2 = NULL;
 	
 
 	// Provide a nice cross platform solution for locating the configuration files
@@ -23,6 +26,10 @@ OgreFrameClass::~OgreFrameClass()
 	if(mWindowListener)
 	{
 		Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, mWindowListener);
+		if(mWindow2)
+		{
+			Ogre::WindowEventUtilities::removeWindowEventListener(mWindow2, mWindowListener);
+		}
 		delete mWindowListener;
 	}
 	if(mFrameListener)
@@ -40,7 +47,7 @@ void OgreFrameClass::go()
 	defineResources();
 	if(!setupRenderSystem())
 		return;
-	createRenderWindow();
+	createRenderWindow(false);
 	initializeResourceGroups();
 	createCameraViweport();
 	createFrameListener();	
@@ -103,9 +110,28 @@ bool OgreFrameClass::setupRenderSystem()
 	return true;
 }	
 
-void OgreFrameClass::createRenderWindow()
+void OgreFrameClass::createRenderWindow(bool dual)
 {
-	mWindow = mRoot->initialise(true, "RealToys: Air Combat (Alpha 1)");		
+	if(dual)
+	{
+		mRoot->initialise(false, "TutorialApplication Render Window");
+
+		//Create the two windows
+		Ogre::NameValuePairList miscParams;
+		miscParams["monitorIndex"] = "0";
+		mWindow = mRoot->createRenderWindow("Test Window Main Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
+		miscParams["monitorIndex"] = "1";
+		mWindow2 = mRoot->createRenderWindow("Test Window Second Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
+
+		mWindow->setDeactivateOnFocusChange(false);
+		mWindow2->setDeactivateOnFocusChange(false);
+	}
+	else
+	{
+		mWindow = mRoot->initialise(true, "RealToys: Air Combat (Alpha 2)");
+		mWindow2 = NULL;
+	}
+	
 }
 
 void OgreFrameClass::initializeResourceGroups()

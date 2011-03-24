@@ -42,6 +42,7 @@ protected:
 	Ogre::Root *mRoot;
 	Ogre::SceneManager *mSceneMgr;
 	Ogre::RenderWindow* mWindow;
+	Ogre::RenderWindow* mWindow2;
 	Ogre::String mResourcePath;	
 	Ogre::Camera *mCamera;
 	AppFrameListener *mFrameListener;	
@@ -50,7 +51,7 @@ protected:
 	void createRoot();
 	void defineResources();
 	bool setupRenderSystem();
-	void createRenderWindow();
+	void createRenderWindow(bool dual);
 	void initializeResourceGroups();
 	void createCameraViweport();
 	virtual void setupScene() = 0;		// pure virtual - this has to be overridden
