@@ -119,9 +119,9 @@ void OgreFrameClass::createRenderWindow(bool dual)
 		//Create the two windows
 		Ogre::NameValuePairList miscParams;
 		miscParams["monitorIndex"] = "0";
-		mWindow = mRoot->createRenderWindow("Test Window Main Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
+		mWindow = mRoot->createRenderWindow("RealToys: Air Combat (Alpha 2) - Right Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
 		miscParams["monitorIndex"] = "1";
-		mWindow2 = mRoot->createRenderWindow("Test Window Second Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
+		mWindow2 = mRoot->createRenderWindow("RealToys: Air Combat (Alpha 2) - Left Monitor", 1280/*1920*/, 1024/*1200*/, true, &miscParams);
 
 		mWindow->setDeactivateOnFocusChange(false);
 		mWindow2->setDeactivateOnFocusChange(false);
@@ -151,6 +151,12 @@ void OgreFrameClass::createCameraViweport()
 	Ogre::Viewport *vp = mWindow->addViewport(mCamera);
 	mCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(vp->getActualHeight()));	
 	vp->setBackgroundColour(Ogre::ColourValue(0.7f,0.7f,0.7f));
+
+	if(mWindow2)
+	{
+		vp = mWindow2->addViewport(mCamera);
+		vp->setBackgroundColour(Ogre::ColourValue(0.7f,0.7f,0.7f));
+	}
 }
 
 
