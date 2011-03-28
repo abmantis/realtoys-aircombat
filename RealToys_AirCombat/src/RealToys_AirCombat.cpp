@@ -70,7 +70,6 @@ void RealToysAirCombat::go()
 	if(!setupRenderSystem())
 		return;
 	createStereoManager();
-//	loadConfigFromFile();
 	createRenderWindow( (mStereoMode == Ogre::StereoManager::SM_DUALOUTPUT) );
 	initializeResourceGroups();
 	createCameraViweport();
@@ -84,8 +83,10 @@ void RealToysAirCombat::go()
 }
 void RealToysAirCombat::initialise()
 {
+	initialiseStereoManager();
 
 	loadConfigFromFile();
+	
 
 	mWorld = new OgreNewt::World();
 	//mWorld->setSolverModel(OgreNewt::World::SM_ADAPTIVE);
@@ -125,7 +126,7 @@ void RealToysAirCombat::initialise()
 }
 void RealToysAirCombat::createFrameListener()
 {
-	mFrameListener = new AppFrameListener(mWindow, mSceneMgr, mCamera, mWorld, mIsSpectator);
+	mFrameListener = new AppFrameListener(mWindow, mSceneMgr, mCamera, mStereoManager, mWorld, mIsSpectator);
 	mRoot->addFrameListener(mFrameListener);
 	
 	mWindowListener = new WindowListener(mFrameListener);
@@ -344,6 +345,25 @@ void RealToysAirCombat::createStereoManager()
 {
 	mStereoManager = new Ogre::StereoManager();
 	mStereoMode = mStereoManager->loadConfig(RealToys::configFileName);
+}
+
+void RealToysAirCombat::initialiseStereoManager()
+{
+	if(mStereoMode != Ogre::StereoManager::SM_NONE)
+	{
+		/*** Stereo : set the viewport global variables */
+		Ogre::Viewport* leftViewport = mWindow->getViewport(0);
+		Ogre::Viewport* rightViewport = NULL;
+		if(mWindow2)
+		{
+			rightViewport = mWindow2->getViewport(0);
+		}
+		
+		mStereoManager->init(leftViewport, rightViewport, "config.cfg");
+		
+	/*	mStereoManager->createDebugPlane(mSceneMgr);
+		mStereoManager->enableDebugPlane(false);*/
+	}
 }
 
 #ifdef __cplusplus

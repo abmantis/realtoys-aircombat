@@ -30,6 +30,7 @@ private:
 	void createStereoManager();
 	void loadConfigFromFile();
 	void addLights();
+	void initialiseStereoManager();
 };
 
 #endif // #ifndef __RealToys_AirCombat_h_

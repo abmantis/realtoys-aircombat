@@ -4,8 +4,8 @@
 #include "RealToysShared.h"
 #include "NetworkManager.h"
 
-AppFrameListener::AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, OgreNewt::World *world, bool spectator):
-mWindow(window), mSceneManager(sceneManager), mCamera(camera), mWorld(world)
+AppFrameListener::AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, Ogre::StereoManager* stereoMgr, OgreNewt::World *world, bool spectator):
+mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereoMgr), mWorld(world)
 {
 	mOgreNewtListener = new NewtonFrameListener( mSceneManager, mWorld, 120 );
 	mShowNewtonDebug = false;	

@@ -10,12 +10,13 @@
 #include "DynamicObjectsManager.h"
 #include "HUDManager.h"
 #include "ParticlesManager.h"
+#include "StereoManager.h"
 
 
 class AppFrameListener: public Ogre::FrameListener, public OIS::MouseListener, public OIS::KeyListener, public OIS::JoyStickListener
 {
 public:
-	AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, OgreNewt::World *world, bool spectator);
+	AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, Ogre::StereoManager* stereoMgr, OgreNewt::World *world, bool spectator);
 	~AppFrameListener(void);
 
 	/*
@@ -55,12 +56,13 @@ private:
 	Ogre::SceneManager* mSceneManager;
 	Ogre::Camera* mCamera;
 	Ogre::SceneNode* mCamNode;
+	Ogre::StereoManager* mStereoMgr;
 	OgreNewt::World *mWorld;	
 	OgreOggSound::OgreOggSoundManager *mSoundMgr;
 	NewtonFrameListener* mOgreNewtListener;
 	InputMappingManager *mInputMappingManager;
 	NetworkManager *mNetworkManager;
-
+	
 	HUDManager *mHUDManager;
 	DynamicObjectsManager *mDynObjManager;	//deletes objects that cannot be deleted immediately 
 
