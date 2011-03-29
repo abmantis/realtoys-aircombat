@@ -315,6 +315,22 @@ bool AppFrameListener::mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonI
 // KeyListener
 bool AppFrameListener::keyPressed(const OIS::KeyEvent &e)
 {
+	switch(e.key)		
+	{
+	case OIS::KC_ADD:
+		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() + 0.1f);
+		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	case OIS::KC_SUBTRACT:
+		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() - 0.1f);
+		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	case OIS::KC_MULTIPLY:
+		mStereoMgr->setEyesSpacing(0.06f);
+		std::cout << "EYES SPACING RESET = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	}
+
 	if(mInputState == INPUTSTATE_INGAME)
 	{
 		
