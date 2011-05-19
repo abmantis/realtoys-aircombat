@@ -97,7 +97,8 @@ void AirplaneManager::createMaterials()
 
 void AirplaneManager::updateAirplanes(Ogre::Real timeSinceLastFrame)
 {
-	//search for deleted airplanes and remove them (server dont need this, because its the server that deletes them
+	// Update all airplanes (both in server and client)
+	// search for deleted airplanes and remove them (server dont need this, because its the server that deletes them)
 
 	Airplane *plane;
 	std::list<Airplane*>::iterator deletedIt;
@@ -138,6 +139,7 @@ void AirplaneManager::updateAirplanes(Ogre::Real timeSinceLastFrame)
 		}
 	}
 
+	// Since the last cycle stopped when it found the local airplane, process the rest of the airplanes
 	for( ; mAirplanesListIt != mAirplanesListEnd; mAirplanesListIt++)
 	{
 		plane = *mAirplanesListIt;

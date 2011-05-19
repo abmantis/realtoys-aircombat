@@ -421,6 +421,7 @@ Airplane::~Airplane(void)
 
 void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 {
+	Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + "Creating airplane");
 	if(mPlaneCreated)
 		return;
 
@@ -482,11 +483,11 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 
 	mPlaneCreated = true;
 
-	//createPlaneColisionFromMesh(mSceneMgr->createEntity("fightercollision.mesh"), mWorld);
+	createPlaneColisionFromMesh(mSceneMgr->createEntity("fightercollision.mesh"), mWorld);
 	Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource("fighter.collision");
 	OgreNewt::CollisionSerializer colSer;
 	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
-	mPlaneCollision = colSer.importCollision((*dsptr.getPointer()), mWorld);
+	mPlaneCollision = colSer.importCollision((dsptr), mWorld);
 
 	//conCollision = boost::dynamic_pointer_cast<OgreNewt::ConvexCollision>( collision );
 
@@ -516,6 +517,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	}
 
 	born(position, orientation);
+	Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + "Airplane created");
 }
 
 void Airplane::setThrustForce(int thrust)
