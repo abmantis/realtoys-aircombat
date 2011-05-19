@@ -483,7 +483,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 
 	mPlaneCreated = true;
 
-	createPlaneColisionFromMesh(mSceneMgr->createEntity("fightercollision.mesh"), mWorld);
+	//createPlaneColisionFromMesh(mSceneMgr->createEntity("fightercollision.mesh"), mWorld);
 	Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource("fighter.collision");
 	OgreNewt::CollisionSerializer colSer;
 	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
