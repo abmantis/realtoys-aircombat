@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "StereoManager.h"
 #include "RealToys_AirCombat.h"
 #include "GameLoadSaveManager.h"
 #include "NetworkManager.h"
@@ -9,11 +10,29 @@
 #include "ScoresManager.h"
 #include "HUDManager.h"
 #include "ParticlesManager.h"
+
 /*
 	Unidades:
 	Peso: decagramas (100 unidades = 1kg)
 	Distancia: centimetros (100 unidades = 1m)
 */
+
+
+RealToysAirCombat::RealToysAirCombat( void )
+: OgreFrameClass()
+{
+	mWorld = NULL;
+	mSoundMgr = NULL;
+	mStereoManager = NULL;
+
+	mMapFile = "";
+	mMapsLocation = "";
+	mServerAddress = "";
+	mServerPort = 0;
+	mIsSpectator = false;
+	mSoundVolume = 0;
+	mParticlesEnabled = false;
+}
 
 RealToysAirCombat::~RealToysAirCombat(void)
 {
@@ -30,7 +49,14 @@ RealToysAirCombat::~RealToysAirCombat(void)
 	if(mWorld)
 	{
 		mWorld->getDebugger().deInit();	
-		delete mWorld;	
+		delete mWorld;
+		mWorld = NULL;
+	}
+
+	if(mStereoManager)
+	{
+		delete mStereoManager;
+		mStereoManager = NULL;
 	}
 	//if(mSoundMgr)
 	//{
@@ -43,7 +69,8 @@ void RealToysAirCombat::go()
 	defineResources();
 	if(!setupRenderSystem())
 		return;
-	createRenderWindow();
+	createStereoManager();
+	createRenderWindow( (mStereoMode == Ogre::StereoManager::SM_DUALOUTPUT) );
 	initializeResourceGroups();
 	createCameraViweport();
 	initialise();
@@ -56,8 +83,10 @@ void RealToysAirCombat::go()
 }
 void RealToysAirCombat::initialise()
 {
+	initialiseStereoManager();
 
 	loadConfigFromFile();
+	
 
 	mWorld = new OgreNewt::World();
 	//mWorld->setSolverModel(OgreNewt::World::SM_ADAPTIVE);
@@ -97,13 +126,14 @@ void RealToysAirCombat::initialise()
 }
 void RealToysAirCombat::createFrameListener()
 {
-	mFrameListener = new AppFrameListener(mWindow, mSceneMgr, mCamera, mWorld, mIsSpectator);
+	mFrameListener = new AppFrameListener(mWindow, mSceneMgr, mCamera, mStereoManager, mWorld, mIsSpectator);
 	mRoot->addFrameListener(mFrameListener);
 	
 	mWindowListener = new WindowListener(mFrameListener);
 	Ogre::WindowEventUtilities::addWindowEventListener(mWindow, mWindowListener);
 
 }
+
 void RealToysAirCombat::loadConfigFromFile()
 {
 	Ogre::String valueStr;
@@ -160,7 +190,6 @@ void RealToysAirCombat::loadConfigFromFile()
 	mServerPort = Ogre::StringConverter::parseUnsignedInt(valueStr);
 
 	
-
 	Ogre::LogManager::getSingletonPtr()
 		->logMessage(RealToys::logMessagePrefix + "Configurations loaded from " + RealToys::configFileName);
 }
@@ -311,6 +340,31 @@ void RealToysAirCombat::addLights()
 	node->setScale(0.1,0.1,0.1);
 }
 
+
+void RealToysAirCombat::createStereoManager()
+{
+	mStereoManager = new Ogre::StereoManager();
+	mStereoMode = mStereoManager->loadConfig(RealToys::configFileName);
+}
+
+void RealToysAirCombat::initialiseStereoManager()
+{
+	if(mStereoMode != Ogre::StereoManager::SM_NONE)
+	{
+		/*** Stereo : set the viewport global variables */
+		Ogre::Viewport* leftViewport = mWindow->getViewport(0);
+		Ogre::Viewport* rightViewport = NULL;
+		if(mWindow2)
+		{
+			rightViewport = mWindow2->getViewport(0);
+		}
+		
+		mStereoManager->init(leftViewport, rightViewport, "config.cfg");
+		
+	/*	mStereoManager->createDebugPlane(mSceneMgr);
+		mStereoManager->enableDebugPlane(false);*/
+	}
+}
 
 #ifdef __cplusplus
 extern "C" {

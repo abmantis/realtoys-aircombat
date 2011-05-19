@@ -6,12 +6,14 @@
 class RealToysAirCombat: public OgreFrameClass
 {
 public:
+	RealToysAirCombat(void);
 	~RealToysAirCombat(void);
 	void go();
 
 private:
 	OgreNewt::World* mWorld;
 	OgreOggSound::OgreOggSoundManager *mSoundMgr;
+	Ogre::StereoManager *mStereoManager;
 
 	Ogre::String mMapFile;
 	Ogre::String mMapsLocation;
@@ -20,12 +22,15 @@ private:
 	bool mIsSpectator;
 	Ogre::Real mSoundVolume;
 	bool mParticlesEnabled;
+	Ogre::StereoManager::StereoMode mStereoMode;
 	
-	void setupScene();			//virtual (OgreFrameClass)	
+	void setupScene();					//virtual (OgreFrameClass)	
 	void initialise();
 	void createFrameListener();
+	void createStereoManager();
 	void loadConfigFromFile();
 	void addLights();
+	void initialiseStereoManager();
 };
 
 #endif // #ifndef __RealToys_AirCombat_h_

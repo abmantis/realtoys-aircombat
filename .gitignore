@@ -25,3 +25,5 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 RealToys_AirCombat/media/maps/colls/
+RealToys_AirCombat/bin/Debug/ogre.cfg
+RealToys_AirCombat/bin/Release/ogre.cfg

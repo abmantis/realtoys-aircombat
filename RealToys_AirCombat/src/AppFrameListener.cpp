@@ -4,8 +4,8 @@
 #include "RealToysShared.h"
 #include "NetworkManager.h"
 
-AppFrameListener::AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, OgreNewt::World *world, bool spectator):
-mWindow(window), mSceneManager(sceneManager), mCamera(camera), mWorld(world)
+AppFrameListener::AppFrameListener(Ogre::RenderWindow* window, Ogre::SceneManager* sceneManager, Ogre::Camera* camera, Ogre::StereoManager* stereoMgr, OgreNewt::World *world, bool spectator):
+mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereoMgr), mWorld(world)
 {
 	mOgreNewtListener = new NewtonFrameListener( mSceneManager, mWorld, 120 );
 	mShowNewtonDebug = false;	
@@ -315,6 +315,22 @@ bool AppFrameListener::mouseReleased(const OIS::MouseEvent &e, OIS::MouseButtonI
 // KeyListener
 bool AppFrameListener::keyPressed(const OIS::KeyEvent &e)
 {
+	switch(e.key)		
+	{
+	case OIS::KC_ADD:
+		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() + 0.1f);
+		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	case OIS::KC_SUBTRACT:
+		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() - 0.1f);
+		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	case OIS::KC_MULTIPLY:
+		mStereoMgr->setEyesSpacing(0.06f);
+		std::cout << "EYES SPACING RESET = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		break;
+	}
+
 	if(mInputState == INPUTSTATE_INGAME)
 	{
 		

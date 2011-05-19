@@ -264,6 +264,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\StereoManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\WallManager.cpp"
 				>
 			</File>
@@ -375,6 +379,10 @@
 			</File>
 			<File
 				RelativePath=".\include\ShotsManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\StereoManager.h"
 				>
 			</File>
 			<File
