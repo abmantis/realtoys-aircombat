@@ -100,11 +100,11 @@ InterSenseCube InterSenseManager::capture( Ogre::Real timeSinceLastFrame )
 	{
 		mElapsedTime = 0;
 
-		ISD_GetTrackingData( mHandle, &mData );
+		ISD_GetTrackingData( mHandle, &mRawData );
 
-		mISenseCube.mYaw = mData.Station[0].Euler[0];
-		mISenseCube.mPitch = mData.Station[0].Euler[1];
-		mISenseCube.mRoll = mData.Station[0].Euler[2];
+		mISenseCube.mYaw = mRawData.Station[0].Euler[0] - mISenseCubeAdjustment.mYaw;
+		mISenseCube.mPitch = mRawData.Station[0].Euler[1] - mISenseCubeAdjustment.mPitch;
+		mISenseCube.mRoll = mRawData.Station[0].Euler[2] - mISenseCubeAdjustment.mRoll;
 	}
 
 	return mISenseCube;
@@ -112,7 +112,12 @@ InterSenseCube InterSenseManager::capture( Ogre::Real timeSinceLastFrame )
 
 void InterSenseManager::resetAngles()
 {
-	ISD_Boresight(mHandle, 1, TRUE);
+	//ISD_Boresight(mHandle, 1, TRUE);
+	
+	ISD_GetTrackingData( mHandle, &mRawData );
+	mISenseCubeAdjustment.mYaw = mRawData.Station[0].Euler[0];
+	mISenseCubeAdjustment.mPitch = mRawData.Station[0].Euler[1];
+	mISenseCubeAdjustment.mRoll = mRawData.Station[0].Euler[2];
 }
 
 bool InterSenseManager::isActive()

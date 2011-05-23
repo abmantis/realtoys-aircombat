@@ -10,6 +10,7 @@ class InterSenseManager;
 struct InterSenseCube
 {
 public:
+	InterSenseCube() {mYaw = 0, mPitch = 0; mRoll = 0;}
 	Ogre::Real GetYaw()		{ return mYaw; }
 	Ogre::Real GetPitch()	{ return mPitch; }
 	Ogre::Real GetRoll()	{ return mRoll; }
@@ -36,7 +37,7 @@ public:
 
 private:	
 	ISD_TRACKER_HANDLE              mHandle;
-	ISD_TRACKING_DATA_TYPE          mData;
+	ISD_TRACKING_DATA_TYPE          mRawData;
 	ISD_STATION_INFO_TYPE           mStations[ISD_MAX_STATIONS];
 	ISD_TRACKER_INFO_TYPE           mTracker;
 	ISD_HARDWARE_INFO_TYPE          mHwInfo;
@@ -44,6 +45,7 @@ private:
 	bool							mActive;
 
 	InterSenseCube					mISenseCube;
+	InterSenseCube					mISenseCubeAdjustment;
 	
 	static const Ogre::Real			mMinElapsedTime;
 	Ogre::Real						mElapsedTime; 
