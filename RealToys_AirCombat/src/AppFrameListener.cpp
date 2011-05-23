@@ -16,7 +16,7 @@ mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereo
 	mAirplaneMgr = AirplaneManager::getSingletonPtr();
 	mHUDManager = HUDManager::getSingletonPtr();
 	mParticlesManager = ParticlesManager::getSingletonPtr();
-	
+
 	if(spectator)
 		mOriginalInputState = INPUTSTATE_SPECTATOR;
 	else
@@ -31,7 +31,7 @@ mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereo
 	mInputMappingManager->setMouseListener(this);
 	mInputMappingManager->setJoystickListener(this);
 
-	
+	mInterSenseMgr = InterSenseManager::getSingletonPtr();		
 
 	mHUDManager->setInGameOverlaysVisible(false);
 	
@@ -49,7 +49,7 @@ mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereo
 	// continue rendering
 	mContinue = true;
 
-	mAirplane = 0;
+	mAirplane = NULL;
 
 	mCamera->detachFromParent();	
 	mCamNode = mSceneManager->getRootSceneNode()->createChildSceneNode("MainCameraNode");
@@ -59,6 +59,8 @@ mWindow(window), mSceneManager(sceneManager), mCamera(camera), mStereoMgr(stereo
 	//mCamNode->attachObject(mSoundMgr->getListener());
 
 	mSoundListener = mSoundMgr->getListener();
+	Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix 
+		+ "FrameListener created");
 }
 
 AppFrameListener::~AppFrameListener()
@@ -79,8 +81,15 @@ bool AppFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 	mRotX = 0;
 	mRotY = 0;
 
-	if(mInputMappingManager)
-		mInputMappingManager->capture();	
+	if(mInputMappingManager) 
+	{ 
+		mInputMappingManager->capture();
+	}
+	
+	if(mInterSenseMgr->isActive())
+	{
+		processInterSenseInput(mTimeSinceLastFrame);
+	}
 	 
 	if(!mContinue || !mNetworkManager->update())
 		return false;
@@ -419,6 +428,46 @@ bool AppFrameListener::keyPressed(const OIS::KeyEvent &e)
 				break;
 			}
 
+			case KA_TOGGLE_ISENSE:
+			{
+				if(mNetworkManager->isServer())
+				{
+					bool isenseWasActive = mInterSenseMgr->isActive();
+			
+					if(isenseWasActive)
+					{
+						mInterSenseMgr->setActive(false);
+						mAirplane->setPitchForce(0.0);
+						mAirplane->setRollForce(0.0);
+					}
+					else
+					{
+						// is intersense started?
+						if(mInterSenseMgr->isInited() == false)
+						{
+							// try to start it up
+							if(mInterSenseMgr->init())
+							{
+								mInterSenseMgr->resetAngles();
+							}
+						}
+
+						mInterSenseMgr->setActive(true);
+					}
+				}				
+				break;
+			}
+
+			case KA_RESET_ISENSE:
+			{
+				if(mInterSenseMgr->isActive())
+				{
+					mInterSenseMgr->resetAngles();
+				}
+				
+				break;
+			}
+
 			case KA__DEBUGPANEL:
 			{
 				mHUDManager->changeDebugStatsOverlayVisibility();
@@ -633,6 +682,11 @@ bool AppFrameListener::keyReleased(const OIS::KeyEvent &e)
 			Ogre::OverlayManager::getSingletonPtr()->getByName("RealToys/PopupMessageOverlay")->hide();
 			if(mOriginalInputState == INPUTSTATE_INGAME)
 			{
+				if(mInterSenseMgr->isActive())
+				{
+					mInterSenseMgr->resetAngles();
+				}
+
 				mCamPosition = 1;
 				nextCamera();
 
@@ -746,3 +800,14 @@ bool AppFrameListener::povMoved( const OIS::JoyStickEvent &e, int pov )
 	return true;
 }
 
+// InterSense 
+void AppFrameListener::processInterSenseInput( Ogre::Real timeSinceLastFrame )
+{	
+	InterSenseCube icube = mInterSenseMgr->capture(timeSinceLastFrame);
+	
+	if(mInputState == INPUTSTATE_INGAME && mAirplane)
+	{		
+		mAirplane->setPitchForce( (PITCHFORCE_2 * icube.GetPitch()) / 45.0f); // people would not raise their head much more than 45degrees
+		mAirplane->setRollForce ( (ROLLFORCE_2 * icube.GetRoll()) / 45.0f);
+	}
+}

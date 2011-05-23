@@ -224,6 +224,12 @@ void InputMappingManager::loadMappings()
 
 	confString = configFile.getSetting("FIRE1", "Keyboard", "KC_UNASSIGNED");
 	addKeyMapFromString(confString, KA__FIRE1);
+	
+	confString = configFile.getSetting("TOGGLE_ISENSE", "Keyboard", "KC_UNASSIGNED");
+	addKeyMapFromString(confString, KA_TOGGLE_ISENSE);
+
+	confString = configFile.getSetting("RESET_ISENSE", "Keyboard", "KC_UNASSIGNED");
+	addKeyMapFromString(confString, KA_RESET_ISENSE);
 
 	mKeyMapVec[OIS::KC_F7] = KA__DEC_SOUND;
 	mKeyMapVec[OIS::KC_F8] = KA__INC_SOUND;	

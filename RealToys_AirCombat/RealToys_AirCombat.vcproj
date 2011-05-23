@@ -54,6 +54,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -144,6 +145,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -221,6 +223,10 @@
 			</File>
 			<File
 				RelativePath=".\src\InputMappingManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\InterSenseManager.cpp"
 				>
 			</File>
 			<File
@@ -323,6 +329,10 @@
 			</File>
 			<File
 				RelativePath=".\include\InputMappingManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\InterSenseManager.h"
 				>
 			</File>
 			<File
@@ -496,6 +506,26 @@
 				</File>
 				<File
 					RelativePath=".\include\Extrapolator.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="InterSense"
+				>
+				<File
+					RelativePath=".\src\isense.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="2"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\include\isense.h"
 					>
 				</File>
 			</Filter>

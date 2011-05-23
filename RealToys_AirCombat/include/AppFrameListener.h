@@ -11,6 +11,7 @@
 #include "HUDManager.h"
 #include "ParticlesManager.h"
 #include "StereoManager.h"
+#include "InterSenseManager.h"
 
 
 class AppFrameListener: public Ogre::FrameListener, public OIS::MouseListener, public OIS::KeyListener, public OIS::JoyStickListener
@@ -60,7 +61,7 @@ private:
 	OgreNewt::World *mWorld;	
 	OgreOggSound::OgreOggSoundManager *mSoundMgr;
 	NewtonFrameListener* mOgreNewtListener;
-	InputMappingManager *mInputMappingManager;
+	InputMappingManager *mInputMappingManager;	
 	NetworkManager *mNetworkManager;
 	
 	HUDManager *mHUDManager;
@@ -97,9 +98,13 @@ private:
 
 	ParticlesManager *mParticlesManager;
 
+	InterSenseManager *mInterSenseMgr;
+
+
 	
 	void moveInGameCamera();
 	void moveSpectatorCamera();
+	void processInterSenseInput(Ogre::Real timeSinceLastFrame);
 
 };
 #endif

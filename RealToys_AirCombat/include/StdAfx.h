@@ -43,7 +43,6 @@
 #include "GetTime.h"
 
 
-
 /* "in-this-project" headers */
 #include "RPC3.h"
 

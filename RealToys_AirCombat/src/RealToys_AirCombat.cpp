@@ -109,6 +109,7 @@ void RealToysAirCombat::initialise()
 	new AirplaneMarkersManager(mSceneMgr);
 	new ScoresManager();	
 	new NetworkManager(mSceneMgr, mWorld);
+	new InterSenseManager();
 
 	new ParticlesManager(mSceneMgr);
 	ParticlesManager::getSingletonPtr()->setEnabled(mParticlesEnabled);
@@ -245,7 +246,10 @@ void RealToysAirCombat::setupScene()
 	else
 	{
 		if(nm->isServer())
+		{
 			nm->setCurrentMap(mMapFile);
+			InterSenseManager::getSingletonPtr()->init();
+		}
 		else
 		{
 			GameLoadSaveManager *gmls = GameLoadSaveManager::getSingletonPtr();
@@ -374,7 +378,7 @@ extern "C" {
 	{
 		OgreOggSound::OgreOggSoundManager::getSingleton().stopAllSounds();
 		OgreOggSound::OgreOggSoundManager::getSingleton().destroyAllSounds();
-		exit(-1);
+		//exit(-1);
 	}
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -387,8 +391,8 @@ extern "C" {
 
 	  // Create application object
 	  RealToysAirCombat app;
-	try
-	{
+	//try
+	//{
 		try {
 			 app.go();
 		} catch( Ogre::Exception& e ) {
@@ -399,11 +403,11 @@ extern "C" {
 				e.getFullDescription().c_str() << std::endl;
 #endif
 		}
-	}
+	/*}
 	catch( ... )
 	{
 		return -1;
-	}
+	}*/
 
 	  return 0;
    }
