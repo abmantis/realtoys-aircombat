@@ -115,7 +115,7 @@ RealToys/DebugOverlay
 		element TextArea(RealToys/DebugText)
 		{
 			metrics_mode pixels
-			left 230
+			left -230
 			top 70
 			width 200
 			height 30

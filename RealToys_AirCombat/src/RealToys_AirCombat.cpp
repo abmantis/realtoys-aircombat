@@ -199,6 +199,8 @@ void RealToysAirCombat::setupScene()
 	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.4, 0.4, 0.4));
 	addLights();
 
+	//mSceneMgr->setFog(Ogre::FOG_EXP2, Ogre::ColourValue::White, 0.001f );
+
 
 	//Ogre::CompositorInstance *instance = Ogre::CompositorManager::getSingletonPtr()
 	//	->addCompositor(mCamera->getViewport(), "Gaussian Blur");
@@ -215,11 +217,11 @@ void RealToysAirCombat::setupScene()
 
 
 	Ogre::OverlayManager::getSingletonPtr()->getByName("RealToys/LoadingscreenOverlay")->show();
-	if(!mRoot->renderOneFrame())
+	if(!mRoot->renderOneFrame() || !mRoot->renderOneFrame()|| !mRoot->renderOneFrame()|| !mRoot->renderOneFrame())
 	{
 		mRoot->shutdown();
 		exit(1);
-	}
+	}	
 
 	NetworkManager *nm = NetworkManager::getSingletonPtr();
 	if(mServerAddress == "0")
@@ -364,9 +366,6 @@ void RealToysAirCombat::initialiseStereoManager()
 		}
 		
 		mStereoManager->init(leftViewport, rightViewport, "config.cfg");
-		
-	/*	mStereoManager->createDebugPlane(mSceneMgr);
-		mStereoManager->enableDebugPlane(false);*/
 	}
 }
 

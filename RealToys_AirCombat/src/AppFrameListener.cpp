@@ -327,16 +327,22 @@ bool AppFrameListener::keyPressed(const OIS::KeyEvent &e)
 	switch(e.key)		
 	{
 	case OIS::KC_ADD:
-		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() + 0.1f);
-		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() + 0.1f);		
+		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/DebugText")->show();
+		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/DebugText")->setCaption(
+			"EYES SPACING = " + Ogre::StringConverter::toString(mStereoMgr->getEyesSpacing()));
+		
 		break;
 	case OIS::KC_SUBTRACT:
+		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/DebugText")->show();
 		mStereoMgr->setEyesSpacing(mStereoMgr->getEyesSpacing() - 0.1f);
-		std::cout << "EYES SPACING = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/DebugText")->setCaption(
+			"EYES SPACING = " + Ogre::StringConverter::toString(mStereoMgr->getEyesSpacing()));
 		break;
 	case OIS::KC_MULTIPLY:
 		mStereoMgr->setEyesSpacing(0.06f);
-		std::cout << "EYES SPACING RESET = " << mStereoMgr->getEyesSpacing()<<std::endl;
+		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/DebugText")->setCaption(
+			"EYES SPACING = " + Ogre::StringConverter::toString(mStereoMgr->getEyesSpacing()));
 		break;
 	}
 
@@ -687,7 +693,7 @@ bool AppFrameListener::keyReleased(const OIS::KeyEvent &e)
 					mInterSenseMgr->resetAngles();
 				}
 
-				mCamPosition = 1;
+				mCamPosition = 2;
 				nextCamera();
 
 				mNetworkManager->requestAirplane();
