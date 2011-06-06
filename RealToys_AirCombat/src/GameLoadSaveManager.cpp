@@ -376,6 +376,30 @@ bool GameLoadSaveManager::ReadSceneNodeInfoAttributes(xmlNodePtr scenenode, Ogre
 	return true;
 }
 
+bool GameLoadSaveManager::ReadPhysicsInfoAttributes(xmlNodePtr physicsnode, 
+	ModelsManager::PhysicsBodyDataStructure physicsDataStructure)
+{
+	//Ogre::String str;
+	//xmlChar* attRet;
+
+	//attRet = xmlGetProp(scenenode, (xmlChar*)"Position");
+	//if(attRet == NULL) return false;
+	//str = (char*)attRet;
+	//position = Ogre::StringConverter::parseVector3(str);
+
+	//attRet = xmlGetProp(scenenode, (xmlChar*)"Scale");
+	//if(attRet == NULL) return false;
+	//str = (char*)attRet;
+	//scale = Ogre::StringConverter::parseVector3(str);
+
+	//attRet = xmlGetProp(scenenode, (xmlChar*)"Orientation");
+	//if(attRet == NULL) return false;
+	//str = (char*)attRet;
+	//orientation = Ogre::StringConverter::parseQuaternion(str);
+
+	return true;
+}
+
 
 xmlChar * GameLoadSaveManager::ConvertInput(const char *in, const char *encoding)
 {

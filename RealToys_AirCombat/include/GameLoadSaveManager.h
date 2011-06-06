@@ -98,6 +98,9 @@ private:
 
 	bool ReadSceneNodeInfoAttributes(xmlNodePtr scenenode, Ogre::Vector3 &position,
 		Ogre::Vector3 &scale, Ogre::Quaternion &orientation);
+
+	bool ReadPhysicsInfoAttributes(xmlNodePtr physicsnode, 
+		ModelsManager::PhysicsBodyDataStructure physicsDataStructure);
 	
 	/**
 	* ConvertInput:

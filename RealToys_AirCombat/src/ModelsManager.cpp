@@ -46,9 +46,11 @@ ModelsManager* ModelsManager::getSingletonPtr(void)
 	return ms_Singleton;
 }
 
-Ogre::SceneNode* ModelsManager::addModel(Ogre::String mesh, Ogre::Vector3 adjustNodePosition, Ogre::Vector3 adjustNodeScale,
-		Ogre::Quaternion adjustNodeOrientation, Ogre::Vector3 editNodePosition, Ogre::Vector3 editNodeScale,
-		Ogre::Quaternion editNodeOrientation, Ogre::String mapName )
+Ogre::SceneNode * ModelsManager::addModel( Ogre::String mesh, Ogre::Vector3 adjustNodePosition, 
+	Ogre::Vector3 adjustNodeScale, Ogre::Quaternion adjustNodeOrientation, 
+	Ogre::Vector3 editNodePosition, Ogre::Vector3 editNodeScale, 
+	Ogre::Quaternion editNodeOrientation, Ogre::String mapName, 
+	ModelsManager::PhysicsBodyDataStructure physicsDataStructure /*= PhysicsBodyDataStructure()*/)
 {
 	long index;	
 	if(mRemovedList.empty())
@@ -73,44 +75,35 @@ Ogre::SceneNode* ModelsManager::addModel(Ogre::String mesh, Ogre::Vector3 adjust
 	ent->setUserAny(Ogre::Any(index));
 	ent->setCastShadows(false);
 
-	
+
+	/* Create SceneNode */
 	Ogre::Vector3 position = editNodePosition + editNodeOrientation * adjustNodePosition * editNodeScale ;
 	Ogre::Quaternion orientation = editNodeOrientation * adjustNodeOrientation;
-	//create scene node
 	Ogre::SceneNode * node = mMasterNode->createChildSceneNode(mNodePrefix + number );
 	node->attachObject(ent);
 	node->setScale(editNodeScale * adjustNodeScale);	
 
 
-	/*	create Newton stuff	*/
-	OgreNewt::CollisionPtr col;
-	Ogre::String collisionFileName = mesh + '_' + mapName + "_.collision";
-	OgreNewt::CollisionSerializer colSer;
-	//try to load the collision from file
-	try
-	{
-		Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource(collisionFileName);		
-		col = colSer.importCollision(dsptr, mWorld);
-	}
-	catch (Ogre::Exception e)
-	{
-		//if it fails to open, creat it and save it
-		Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + mesh + " collision not found, creating");
-		col = OgreNewt::CollisionPtr( new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, false, 0) );
-		colSer.exportCollision(col, mCollisionsLocation+collisionFileName);
-	}	
-
+	/*	Create Newton stuff	*/
+	Ogre::Vector3 inertia, centerOfMass;
+	
+	OgreNewt::CollisionPtr col = loadNewtonCollision(mapName, ent, physicsDataStructure);
 	OgreNewt::Body* modelBody = new OgreNewt::Body( mWorld, col );
 	modelBody->attachNode(node);
 	modelBody->setPositionOrientation(position, orientation);
 	modelBody->setType(RealToys::BODYTYPE_DECOMODEL);
-	node->setUserAny(Ogre::Any(modelBody));
+	modelBody->setUserData(Ogre::Any(new PhysicsBodyDataStructure(physicsDataStructure)));
 
-	//col = OgreNewt::CollisionPtr( new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, false, OgreNewt::CollisionPrimitives::FW_REVERSE) );
-	//modelBody = new OgreNewt::Body( mWorld, col );
-	//modelBody->attachNode(node);
-	//modelBody->setPositionOrientation(position, orientation);
-	//ent->setUserAny(Ogre::Any(modelBody));
+	if(physicsDataStructure.collisionType != TREE)
+	{
+		NewtonConvexCollisionCalculateInertialMatrix(modelBody->getNewtonCollision(), &inertia.x, &centerOfMass.x);	
+		inertia *= physicsDataStructure.mass;		
+		modelBody->setMassMatrix( physicsDataStructure.mass, inertia );
+		modelBody->setCenterOfMass(centerOfMass);
+		modelBody->setCustomForceAndTorqueCallback( gravityForceCallback );
+	}	
+	std::cout << physicsDataStructure.gravity << std::endl;
+	node->setUserAny(Ogre::Any(modelBody));
 	
 	return node;
 }
@@ -148,4 +141,68 @@ void ModelsManager::clearAll()
 	}
 	mRemovedList.clear();
 	mNextIndex = 0;
+}
+
+OgreNewt::CollisionPtr ModelsManager::loadNewtonCollision( Ogre::String mapName, 
+	Ogre::Entity* ent, ModelsManager::PhysicsBodyDataStructure physicsDataStructure )
+{
+	Ogre::String mesh = ent->getMesh()->getName();
+	Ogre::String collisionFileName = mesh + '_' + mapName + "_";
+	OgreNewt::CollisionSerializer colSer;
+	OgreNewt::CollisionPtr col_ptr;
+
+	switch (physicsDataStructure.collisionType)
+	{
+	case TREE:
+		collisionFileName += ".tree_collision";
+		break;
+	case CONVEX:
+		collisionFileName += ".conv_collision";
+		break;
+	}
+	
+	
+	//try to load the collision from file
+	try
+	{
+		Ogre::DataStreamPtr dsptr = Ogre::ResourceGroupManager::getSingletonPtr()->openResource(collisionFileName);		
+		col_ptr = colSer.importCollision(dsptr, mWorld);
+	}
+	catch (Ogre::Exception e)
+	{
+		//if it fails to open, creat it and save it
+		Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + mesh + " collision not found, creating [" + collisionFileName + "]");
+		
+		switch (physicsDataStructure.collisionType)
+		{
+		case TREE:
+			col_ptr = OgreNewt::CollisionPtr( new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, false, 0) );
+			break;
+		case CONVEX:
+			col_ptr = OgreNewt::CollisionPtr( new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, ent, 0) );
+			break;
+		}
+		
+		colSer.exportCollision(col_ptr, mCollisionsLocation+collisionFileName);
+	}	
+
+	return col_ptr;
+}
+
+void ModelsManager::gravityForceCallback( OgreNewt::Body* me, float timestep, int threadIndex )
+{
+	//apply a simple gravity force.
+	Ogre::Real mass;
+	Ogre::Vector3 inertia;
+
+	PhysicsBodyDataStructure pbds = *(Ogre::any_cast<PhysicsBodyDataStructure*>(me->getUserData()));
+
+	me->getMassMatrix(mass, inertia);
+	Ogre::Vector3 force(0, pbds.gravity, 0);
+	force *= mass;
+
+	
+
+	me->addForce( force );
+
 }

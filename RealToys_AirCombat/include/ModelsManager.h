@@ -7,6 +7,33 @@
 class ModelsManager: public Ogre::Singleton<ModelsManager>
 {
 public:
+	enum PhysicsBodyTypes { TREE, CONVEX };
+	struct PhysicsBodyDataStructure
+	{
+		PhysicsBodyDataStructure()
+		{
+			collisionType = CONVEX;
+			mass = 100;
+			gravity = -98;
+
+			//collisionType = TREE;
+			//mass = 0;
+			//gravity = 0;
+		}
+
+		PhysicsBodyDataStructure(PhysicsBodyTypes collisionType,
+			Ogre::Real mass, Ogre::Real gravity)
+		{
+			this->collisionType = collisionType;
+			this->mass = mass;
+			this->gravity = gravity;
+		}
+
+		PhysicsBodyTypes collisionType;
+		Ogre::Real mass;
+		Ogre::Real gravity;
+	};
+
 	ModelsManager(Ogre::SceneManager * sceneManager, OgreNewt::World* newtWorld);
 	~ModelsManager(void);
 
@@ -16,9 +43,11 @@ public:
 		@remarks - the adjustNode is the one that is parent to the entity, the editNode is parent to the adjust node
 		@returns Ogre::SceneNode pointer that holds another SceneNode (to have center correction, and scale) that holds the Entity.
 	*/
-	Ogre::SceneNode * addModel(Ogre::String mesh, Ogre::Vector3 adjustNodePosition, Ogre::Vector3 adjustNodeScale,
-		Ogre::Quaternion adjustNodeOrientation, Ogre::Vector3 editNodePosition, Ogre::Vector3 editNodeScale,
-		Ogre::Quaternion editNodeOrientation, Ogre::String mapName );	
+	Ogre::SceneNode * addModel(Ogre::String mesh, Ogre::Vector3 adjustNodePosition, 
+		Ogre::Vector3 adjustNodeScale, Ogre::Quaternion adjustNodeOrientation, 
+		Ogre::Vector3 editNodePosition, Ogre::Vector3 editNodeScale, 
+		Ogre::Quaternion editNodeOrientation, Ogre::String mapName, 
+		ModelsManager::PhysicsBodyDataStructure physicsDataStructure = PhysicsBodyDataStructure());	
 
 
 	/*
@@ -28,6 +57,11 @@ public:
 	void removeModel(Ogre::Entity * modelEntity);
 
 	void clearAll();
+
+	OgreNewt::CollisionPtr loadNewtonCollision(Ogre::String mapName, 
+		Ogre::Entity* ent, ModelsManager::PhysicsBodyDataStructure physicsDataStructure);
+	static void gravityForceCallback( OgreNewt::Body* me, float timestep, int threadIndex );
+	
 
 
 	/** Override standard Singleton retrieval.
