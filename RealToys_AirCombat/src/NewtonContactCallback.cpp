@@ -38,7 +38,12 @@ void AirplaneContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJo
 	}
 	speed = Ogre::Math::Abs(speed);
 
-//	std::cout << "PROCESS " << speed <<  std::endl;
+	// each airplane has a speed limit of ~83, so there
+	// should not be a colision at more than 2*83
+	if(speed > 166)	speed = 166;
+						
+
+	//std::cout << "colision: " << timeStep << " - " << speed <<  std::endl;
 
 	if(body0->getType() == mPlaneType)
 	{
