@@ -55,16 +55,18 @@ Ogre::SceneNode * WallManager::addWall(Ogre::String texture1, Ogre::String textu
 
 	Ogre::SceneNode * node = mMasterNode->createChildSceneNode(mNodePrefix + number);
 	node->attachObject(ent);
-	node->setScale(scale );					
-
+	node->setScale(scale );
 
 	
-	
+	RealToys::ToNewton(node);
 	OgreNewt::CollisionPtr col( new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, true, 0) );
+	RealToys::FromNewton(node);
+
 	OgreNewt::Body* wallBody = new OgreNewt::Body( mWorld, col );
 	wallBody->attachNode(node);
-	wallBody->setPositionOrientation(position, orientation);
+	wallBody->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	wallBody->setType(RealToys::BODYTYPE_WALL);
+	wallBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 	node->setUserAny(Ogre::Any(wallBody));
 	

@@ -36,7 +36,7 @@ void AirplaneContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJo
 
 		contact = contact.getNext();
 	}
-	speed = Ogre::Math::Abs(speed);
+	speed = Ogre::Math::Abs(RealToys::FromNewton(speed));
 
 	// each airplane has a speed limit of ~83, so there
 	// should not be a colision at more than 2*83
@@ -48,14 +48,14 @@ void AirplaneContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJo
 	if(body0->getType() == mPlaneType)
 	{
 		plane = Ogre::any_cast<Airplane*>(body0->getUserData());
-		plane->setCollisionActions();
+		plane->setCollisionActions(speed, timeStep);
 		mScoresManager->addDamage(plane->getOwner(), speed*0.15f);
 	
 	}
 	if(body1->getType() == mPlaneType)
 	{
 		plane = Ogre::any_cast<Airplane*>(body1->getUserData());
-		plane->setCollisionActions();
+		plane->setCollisionActions(speed, timeStep);
 		mScoresManager->addDamage(plane->getOwner(), speed*0.15f);
 	}	
 
@@ -181,6 +181,8 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 			mDynObjMan->addToDeleteList(shot);	
 
 			actualContact.getPositionAndNormal(pos,norm);
+			pos = RealToys::FromNewton(pos);
+			norm = RealToys::FromNewton(norm);
 
 			mParticlesManager->requestShotHitParticles(pos, norm);
 			

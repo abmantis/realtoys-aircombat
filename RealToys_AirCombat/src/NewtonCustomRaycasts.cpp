@@ -23,7 +23,7 @@ void AirplaneShotRaycast::go(const OgreNewt::World* world, const Ogre::Vector3& 
 	mCloseInfo.mNormal = Ogre::Vector3::ZERO;
 	mCloseInfo.mCollisionID = -1;
 
-	Raycast::go( world, startpt, endpt );	
+	Raycast::go( world, RealToys::ToNewton(startpt), RealToys::ToNewton(endpt) );	
 }
 bool AirplaneShotRaycast::userCallback( OgreNewt::Body* body, Ogre::Real distance, const Ogre::Vector3& normal, int collisionID )
 {
@@ -31,7 +31,7 @@ bool AirplaneShotRaycast::userCallback( OgreNewt::Body* body, Ogre::Real distanc
 	//{
 		// replace closest info object.
 		mCloseInfo.mBody = body;
-		mCloseInfo.mDistance = distance;
+		mCloseInfo.mDistance = distance; // range [0, 1]
 		mCloseInfo.mNormal = normal;
 		mCloseInfo.mCollisionID = collisionID;	
 	//}

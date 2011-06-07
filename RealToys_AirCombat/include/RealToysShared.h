@@ -63,6 +63,17 @@ namespace RealToys
 			quat.z / OgreNewtonFactor);*/
 		return quat;
 	}
+	static void ToNewton( Ogre::Node *node)
+	{
+		// let's scale the object to newton's units so the collision is created correctly
+		node->scale(RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE));
+	}
+	static Ogre::Real ToNewton( const Ogre::Real val)
+	{
+		// let's scale the object to newton's units so the collision is created correctly
+		return val / OgreNewtonFactor;
+	}
+
 	static Ogre::Vector3 FromNewton(const Ogre::Vector3 vec)
 	{
 		return vec * OgreNewtonFactor;
@@ -70,6 +81,16 @@ namespace RealToys
 	static Ogre::Quaternion FromNewton(const Ogre::Quaternion quat)
 	{
 		return quat;// * OgreNewtonFactor;
+	}
+	static void FromNewton( Ogre::Node *node)
+	{
+		// let's scale the object to newton's units so the collision is created correctly
+		node->scale(RealToys::FromNewton(Ogre::Vector3::UNIT_SCALE));
+	}
+	static Ogre::Real FromNewton( const Ogre::Real val)
+	{
+		// let's scale the object to newton's units so the collision is created correctly
+		return val * OgreNewtonFactor;
 	}
 };
 

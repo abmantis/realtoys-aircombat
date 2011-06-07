@@ -163,6 +163,13 @@ bool AppFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 void AppFrameListener::moveInGameCamera()
 {
+	//mCamNode->setPosition(Ogre::Vector3(100,200,100));
+	////mCamNode->setOrientation(planeOri);
+	//mCamNode->lookAt(Ogre::Vector3::ZERO, Ogre::Node::TS_WORLD, Ogre::Vector3::UNIT_Z);
+
+	//return;
+
+
 	Ogre::Vector3 planePos, planeDir, planeOmega;
 	Ogre::Quaternion planeOri;
 

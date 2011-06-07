@@ -38,7 +38,7 @@ ShotsManager::ShotsManager(int initialShotStackCount, float fireInterval,
 	//create shared newton collision
 	Ogre::AxisAlignedBox bbox = baseShotEntity->getBoundingBox();
 	OgreNewt::CollisionPrimitives::Cylinder *cylColl = 	new OgreNewt::CollisionPrimitives::Cylinder(
-		mWorld, bbox.getSize().x*0.5f, bbox.getSize().z, 0, collOri );
+		mWorld, RealToys::ToNewton(bbox.getSize().x*0.5f), RealToys::ToNewton(bbox.getSize().z), 0, RealToys::ToNewton(collOri) );
 	mShotCollision = OgreNewt::CollisionPtr( cylColl );
 	cylColl->calculateInertialMatrix(mCollisionInertialMatrix, Ogre::Vector3());
 

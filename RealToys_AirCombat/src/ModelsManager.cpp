@@ -90,19 +90,19 @@ Ogre::SceneNode * ModelsManager::addModel( Ogre::String mesh, Ogre::Vector3 adju
 	OgreNewt::CollisionPtr col = loadNewtonCollision(mapName, ent, physicsDataStructure);
 	OgreNewt::Body* modelBody = new OgreNewt::Body( mWorld, col );
 	modelBody->attachNode(node);
-	modelBody->setPositionOrientation(position, orientation);
+	modelBody->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	modelBody->setType(RealToys::BODYTYPE_DECOMODEL);
 	modelBody->setUserData(Ogre::Any(new PhysicsBodyDataStructure(physicsDataStructure)));
+	modelBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 	if(physicsDataStructure.collisionType != TREE)
 	{
 		NewtonConvexCollisionCalculateInertialMatrix(modelBody->getNewtonCollision(), &inertia.x, &centerOfMass.x);	
-		inertia *= physicsDataStructure.mass;		
+		inertia *= physicsDataStructure.mass;
 		modelBody->setMassMatrix( physicsDataStructure.mass, inertia );
 		modelBody->setCenterOfMass(centerOfMass);
 		modelBody->setCustomForceAndTorqueCallback( gravityForceCallback );
 	}	
-	std::cout << physicsDataStructure.gravity << std::endl;
 	node->setUserAny(Ogre::Any(modelBody));
 	
 	return node;
@@ -173,6 +173,10 @@ OgreNewt::CollisionPtr ModelsManager::loadNewtonCollision( Ogre::String mapName,
 		//if it fails to open, creat it and save it
 		Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + mesh + " collision not found, creating [" + collisionFileName + "]");
 		
+
+		// let's scale the object to newton's units so the collision is created correctly
+		RealToys::ToNewton(ent->getParentNode());
+
 		switch (physicsDataStructure.collisionType)
 		{
 		case TREE:
@@ -182,6 +186,9 @@ OgreNewt::CollisionPtr ModelsManager::loadNewtonCollision( Ogre::String mapName,
 			col_ptr = OgreNewt::CollisionPtr( new OgreNewt::CollisionPrimitives::ConvexHull(mWorld, ent, 0) );
 			break;
 		}
+
+		// revert to ogre units
+		RealToys::FromNewton(ent->getParentNode());
 		
 		colSer.exportCollision(col_ptr, mCollisionsLocation+collisionFileName);
 	}	
@@ -200,8 +207,6 @@ void ModelsManager::gravityForceCallback( OgreNewt::Body* me, float timestep, in
 	me->getMassMatrix(mass, inertia);
 	Ogre::Vector3 force(0, pbds.gravity, 0);
 	force *= mass;
-
-	
 
 	me->addForce( force );
 

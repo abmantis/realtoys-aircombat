@@ -37,7 +37,7 @@ public:
 	void addRollForce(Ogre::Real force);
 	
 	void setNormalMotionForceCallback();
-	void setCollisionActions();
+	void setCollisionActions(Ogre::Real collisionSpeed, Ogre::Real timeStep);
 
 	void getPositionOrientation(Ogre::Vector3 &position, Ogre::Quaternion &orientation);
 
@@ -116,6 +116,8 @@ private:
 	float mTimeToGainControll;		//time remaining to get thrust, usually after a collision
 	float mTimeSinceLastUpdate;		//time since the last update to the actual on (only used by clients)
 	float mTimeToBornAgain;	
+	float mTimeSinceCollision;			//time since last collision
+	float mWeirdCollisionCounter;
 
 	RakNet::Time mTimeLastPosOriPack;
 		

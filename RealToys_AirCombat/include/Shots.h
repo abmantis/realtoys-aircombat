@@ -26,18 +26,18 @@ public:
 		//mShotNode->setOrientation(direction);
 		//mShotNode->setPosition(position);
 
-		Ogre::Real mass = 1;
-		inertia *= mass;
-		mBody = new OgreNewt::Body(mWorld, collision);			
+		Ogre::Real mass = 0.01f;
+		mBody = new OgreNewt::Body(mWorld, collision);
 		mBody->attachNode(mShotNode);
+		mBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 		mBody->setUserData(Ogre::Any(this));	
-		mBody->setMassMatrix(mass, inertia);
-		mBody->setPositionOrientation(position, direction);
+		mBody->setMassMatrix(mass, inertia*mass);
+		mBody->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(direction));
 		mBody->setType(RealToys::BODYTYPE_SHOT1);
 		mBody->setMaterialGroupID(materialID);
 		mBody->setLinearDamping(0.0001f);
 		mBody->setAutoSleep(0);		
-		mBody->setVelocity(direction*Ogre::Vector3(0, 0, 1000));
+		mBody->setVelocity(RealToys::ToNewton(direction*Ogre::Vector3(0, 0, 1000)));
 
 		//particles
 		mParticles = mParticlesMgr->requestShotBlueFlameParticles(mShotNode);		

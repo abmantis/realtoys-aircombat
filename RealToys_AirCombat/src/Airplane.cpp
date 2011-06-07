@@ -152,6 +152,8 @@ mSceneMgr(sceneManager), mWorld(world), mServer(onServer)
 	mPitchForce			= 0;
 	mActualThrustForce	= 0;
 	mTimeToGainControll	= 0;
+	mTimeSinceCollision	= 0;
+	mWeirdCollisionCounter = 0;
 	mTimeToBornAgain	= 0;
 	mPropRot			= 0.1;
 	mPropBlurRot		= -0.05;
@@ -489,20 +491,12 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
 	mPlaneCollision = colSer.importCollision((dsptr), mWorld);
 	
-	// scale the collision to Newton system
-	//Ogre::Matrix4 ogrematrix;
-	//float matrix[16];	
-	//ogrematrix.setScale(RealToys::ToNewton(Ogre::Vector3(1,1,1)));
-	//OgreNewt::Converters::Matrix4ToMatrix( ogrematrix, matrix );
-	//NewtonConvexHullModifierSetMatrix( mPlaneCollision->getNewtonCollision(), matrix ); 
-	
-
 	//conCollision = boost::dynamic_pointer_cast<OgreNewt::ConvexCollision>( collision );
 
 
 	//collision->calculateInertialMatrix(inertia, centmass);
 	NewtonConvexCollisionCalculateInertialMatrix(mPlaneCollision->getNewtonCollision(), &mPlaneInertia.x, &mPlaneCenterOfMass.x);
-	mPlaneInertia*=mPlaneMass;	
+	
 
 	mPlaneCenterOfMass = mMotorPosition*0.5;
 
@@ -599,34 +593,32 @@ void Airplane::addRollForce(Ogre::Real force)
 }
 void Airplane::AfterCollisionCallback(OgreNewt::Body* body, float timeStep, int threadIndex )
 {		
-	if(mTimeToGainControll > 0)
-	{
-		mTimeToGainControll-=timeStep;
+	mTimeSinceCollision += timeStep;
 
-		Ogre::Vector3 force;
-		
-		//apply pitch
-		force = Ogre::Vector3(0, mPitchForce, 0);
-		body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
-		//body->addLocalForce(force*-1, -mMotorPosition);	
-		
-		//apply roll
-		force = Ogre::Vector3(0, mRollForce, 0);
-		body->addLocalForce(force, RealToys::ToNewton(mWingPosition));
-		body->addLocalForce(force*-1, RealToys::ToNewton(-mWingPosition));
-		
-	}
-	else
-	{
-		mTimeToGainControll = 0;
-		setNormalMotionForceCallback();
-	}
+	Ogre::Vector3 force;
+
+	////apply inverse thrust
+	//force = Ogre::Vector3(0,0, mActualThrustForce);
+	//body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));		
+
+
+	//apply pitch
+	force = Ogre::Vector3(0, (PITCHFORCE_2*100.0f ), 0);
+	body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
+
+	//apply roll
+	force = Ogre::Vector3(0, mRollForce, 0);
+	body->addLocalForce(force, RealToys::ToNewton(mWingPosition));
+	body->addLocalForce(force*-1, RealToys::ToNewton(-mWingPosition));
 	
-	//mPropNode->roll(mPropRot);
-	//mPropBlurNode->roll(mPropBlurRot);
+	setNormalMotionForceCallback();
+
+	//std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
+
 }
 void Airplane::NormalMotionCallback(OgreNewt::Body* body, float timeStep, int threadIndex )
 {	
+	mTimeSinceCollision += timeStep;
 	Ogre::Real interv = ((float) THRUSTFORCE_0) / 60.0f;
 	if(mActualThrustForce < mThrustForce - interv)
 	{
@@ -646,7 +638,6 @@ void Airplane::NormalMotionCallback(OgreNewt::Body* body, float timeStep, int th
 	//apply pitch
 	force = Ogre::Vector3(0, mPitchForce, 0);
 	body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
-	//body->addLocalForce(force*-1, -mMotorPosition);	
 	
 	//apply roll
 	force = Ogre::Vector3(0, mRollForce, 0);
@@ -667,14 +658,40 @@ void Airplane::setNormalMotionForceCallback()
 		mBody->setCustomForceAndTorqueCallback<Airplane>(&Airplane::NormalMotionCallback, this);
 }
 
-void Airplane::setCollisionActions()
+void Airplane::setCollisionActions( Ogre::Real collisionSpeed, Ogre::Real timeStep )
 {	
-	if(mTimeToGainControll!= 0 || mServer == false)
+	if( mServer == false ) 
+	{
+		return;
+	}
+	
+	if(mTimeSinceCollision < 0.015f)
+	{		
+		if(collisionSpeed < 1.0f)
+		{
+			mWeirdCollisionCounter++;
+		}		
+	}
+	else
+	{
+		mWeirdCollisionCounter = 0;
+	}
+
+	mTimeSinceCollision = 0;
+
+
+	if(mWeirdCollisionCounter > 50)
+	{
+		mWeirdCollisionCounter = 0;
+		mBody->setCustomForceAndTorqueCallback<Airplane>(&Airplane::AfterCollisionCallback, this);
+	}
+
+	/*if(mTimeToGainControll!= 0 || mServer == false)
 		return;
 
 	mTimeToGainControll = 0.5f;
 	
-	mBody->setCustomForceAndTorqueCallback<Airplane>(&Airplane::AfterCollisionCallback, this);
+	mBody->setCustomForceAndTorqueCallback<Airplane>(&Airplane::AfterCollisionCallback, this);*/
 }
 
 void Airplane::getPositionOrientation(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
@@ -719,8 +736,6 @@ void Airplane::update(Ogre::Real timeSinceLastFrame)
 		die();
 		return;
 	}
-
-	
 		
 	if(mServer)
 	{
@@ -738,8 +753,6 @@ void Airplane::update(Ogre::Real timeSinceLastFrame)
 
 	float soundPitch = 1.0f * Ogre::Math::Abs( (mOrientation.Inverse()*mVelocity).z ) / 150.0f  + 0.6f;
 	mMotorSound->setPitch( soundPitch );
-
-	//std::cout << soundPitch << std::endl;
 
 	Ogre::Radian addedRot( (mActualThrustForce*0.03f)/THRUSTFORCE_3*1.0f);
 	//simulate fixed timestep in propeller effects 
@@ -779,11 +792,7 @@ bool Airplane::getTargetHitPoint(Ogre::Vector3 &hit)
 		// Cast a ray between these points and check for first hit
 		mShotRaycast->go(mWorld, start, end);
 		hitDist = mShotRaycast->getClosestHit().mDistance;
-		//OgreNewt::BasicRaycast::BasicRaycastInfo info = mShotRaycast->getClosestHit();
-
-		/*OgreNewt::BasicRaycast *basicRaycast = new OgreNewt::BasicRaycast(mWorld, start, end, false);
-		OgreNewt::BasicRaycast::BasicRaycastInfo info = basicRaycast->getFirstHit();*/
-				
+					
 		startDist = endDist;
 		endDist += rayDist;
 
@@ -832,8 +841,8 @@ void Airplane::die()
 }
 void Airplane::born(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
 {
-	position = Ogre::Vector3::ZERO;
-	position.y = 400;
+	//position = Ogre::Vector3::ZERO;
+	//position.y = 400;
 
 	mPosition = position;
 	mOrientation = orientation;
@@ -841,7 +850,7 @@ void Airplane::born(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
 	mBody = new OgreNewt::Body(mWorld, mPlaneCollision);			
 	mBody->attachNode(mPlaneNode);
 	mBody->setUserData(Ogre::Any(this));
-	mBody->setMassMatrix(mPlaneMass, mPlaneInertia);	
+	mBody->setMassMatrix(mPlaneMass, mPlaneInertia*mPlaneMass);	
 	mBody->setCenterOfMass(RealToys::ToNewton(mPlaneCenterOfMass));
 	mBody->setContinuousCollisionMode(1); 
 	mBody->setAngularDamping(Ogre::Vector3(1,1,1));

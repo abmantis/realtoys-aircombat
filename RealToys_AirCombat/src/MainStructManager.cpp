@@ -22,8 +22,8 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 	int basePlaneSize = 100;		//tamanho base (sem scale) de cada plano (excepto altura das paredes), em cm
 	int numPlaneSegments = 10;
 
-	mWorld->setWorldSize(Ogre::Vector3(-basePlaneSize,-10,-basePlaneSize),
-		Ogre::Vector3(basePlaneSize, RealToys::wallHeight+10, basePlaneSize));
+	mWorld->setWorldSize(RealToys::ToNewton(Ogre::Vector3(-basePlaneSize,-10,-basePlaneSize)),
+		RealToys::ToNewton(Ogre::Vector3(basePlaneSize, RealToys::wallHeight+10, basePlaneSize)));
 
 
 	// Create a material for the plane (just a simple texture, here grass.jpg)
@@ -74,10 +74,14 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 	Ogre::SceneNode *node = mPlaneNode->createChildSceneNode("FloorNode");
 	node->attachObject(ent);
 	
+	RealToys::ToNewton(node);
 	OgreNewt::CollisionPtr col( new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, true, 0) );
+	RealToys::FromNewton(node);
+
 	mFloorBody = new OgreNewt::Body( mWorld, col );
 	mFloorBody->attachNode(node);	
 	mFloorBody->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mFloorBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 	
 
 	//Tecto
@@ -93,8 +97,9 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 		
 	mCeilingBody = new OgreNewt::Body( mWorld, col );
 	mCeilingBody->attachNode(node);
-	mCeilingBody->setPositionOrientation(position, orientation);
+	mCeilingBody->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mCeilingBody->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mCeilingBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 	
 	
@@ -108,11 +113,15 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 	position = Ogre::Vector3(basePlaneSize*0.5f, RealToys::wallHeight*0.5f, 0.0f);
 	orientation = Ogre::Quaternion(Ogre::Degree(-90), Ogre::Vector3(0,1,0));
 	
+	RealToys::ToNewton(node);
 	col = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, ent, true, 0));
+	RealToys::FromNewton(node);
+
 	mWall1Body = new OgreNewt::Body( mWorld, col );
 	mWall1Body->attachNode(node);
-	mWall1Body->setPositionOrientation(position, orientation);
+	mWall1Body->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mWall1Body->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mWall1Body->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 	
 	ent = mSceneMgr->createEntity("MainWall2_Ent", "WallPlaneMesh");
@@ -129,8 +138,9 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 	
 	mWall2Body = new OgreNewt::Body( mWorld, col );
 	mWall2Body->attachNode(node);
-	mWall2Body->setPositionOrientation(position, orientation);
+	mWall2Body->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mWall2Body->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mWall2Body->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 
 	ent = mSceneMgr->createEntity("MainWall3_Ent", "WallPlaneMesh");
@@ -148,8 +158,9 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 	
 	mWall3Body = new OgreNewt::Body( mWorld, col );
 	mWall3Body->attachNode(node);
-	mWall3Body->setPositionOrientation(position, orientation);
+	mWall3Body->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mWall3Body->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mWall3Body->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 		
 
 	ent = mSceneMgr->createEntity("MainWall4_Ent", "WallPlaneMesh");
@@ -166,8 +177,9 @@ MainStructManager::MainStructManager(Ogre::SceneManager *sceneManager, OgreNewt:
 		
 	mWall4Body = new OgreNewt::Body( mWorld, col );
 	mWall4Body->attachNode(node);
-	mWall4Body->setPositionOrientation(position, orientation);
+	mWall4Body->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mWall4Body->setType(RealToys::BODYTYPE_MAINSTRUCT);
+	mWall4Body->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
 
 
 
@@ -190,14 +202,17 @@ void MainStructManager::SetSize(Ogre::Vector2 size)
 	mSize.z = width;
 	mSize.y = RealToys::wallHeight*0.01f;
 
-	mWorld->setWorldSize(Ogre::Vector3(-length*100, -100, -width*100), 
-		Ogre::Vector3(length*100, RealToys::wallHeight+100, width*100));
+	mWorld->setWorldSize(RealToys::ToNewton(Ogre::Vector3(-length*100, -100, -width*100)), 
+		RealToys::ToNewton(Ogre::Vector3(length*100, RealToys::wallHeight+100, width*100)));
 
 	Ogre::SceneNode *node;
 
 	node = mSceneMgr->getSceneNode("FloorNode");
-	node->setScale(Ogre::Vector3(length, 1, width));	
+	node->setScale(Ogre::Vector3(length, 1, width));
+
+	RealToys::ToNewton(node);
 	OgreNewt::CollisionPtr col(new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, (Ogre::Entity*)node->getAttachedObject(0), true, 0));
+	RealToys::FromNewton(node);
 	mFloorBody->setCollision(col);
 
 	node = mSceneMgr->getSceneNode("CeilingNode");
@@ -214,17 +229,19 @@ void MainStructManager::SetSize(Ogre::Vector2 size)
 	node = mSceneMgr->getSceneNode("MainWall2_Node");
 	node->setScale(Ogre::Vector3(width,1,1));
 
+	RealToys::ToNewton(node);
 	col = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, (Ogre::Entity*)node->getAttachedObject(0), true, 0));
-	
+	RealToys::FromNewton(node);
+
 	mWall1Body->setCollision(col);
 	mWall1Body->getPositionOrientation(pos, ori);
 	pos = Ogre::Vector3(length*100*0.5, RealToys::wallHeight*0.5, 0);
-	mWall1Body->setPositionOrientation(pos,ori);
+	mWall1Body->setPositionOrientation(RealToys::ToNewton(pos), ori);
 	
 	mWall2Body->setCollision(col);
 	mWall2Body->getPositionOrientation(pos, ori);
 	pos = Ogre::Vector3(-length*100*0.5, RealToys::wallHeight*0.5, 0);
-	mWall2Body->setPositionOrientation(pos,ori);
+	mWall2Body->setPositionOrientation(RealToys::ToNewton(pos),ori);
 	
 	
 
@@ -234,17 +251,19 @@ void MainStructManager::SetSize(Ogre::Vector2 size)
 	node = mSceneMgr->getSceneNode("MainWall4_Node");
 	node->setScale(Ogre::Vector3(length,1,1));
 
+	RealToys::ToNewton(node);
 	col = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::TreeCollision(mWorld, (Ogre::Entity*)node->getAttachedObject(0), true, 0));
+	RealToys::FromNewton(node);
 
 	mWall3Body->setCollision(col);
 	mWall3Body->getPositionOrientation(pos, ori);
 	pos = Ogre::Vector3(0, RealToys::wallHeight*0.5, width*100*0.5);
-	mWall3Body->setPositionOrientation(pos,ori);
+	mWall3Body->setPositionOrientation(RealToys::ToNewton(pos),ori);
 
 	mWall4Body->setCollision(col);
 	mWall4Body->getPositionOrientation(pos, ori);
 	pos = Ogre::Vector3(0, RealToys::wallHeight*0.5, -width*100*0.5);
-	mWall4Body->setPositionOrientation(pos,ori);
+	mWall4Body->setPositionOrientation(RealToys::ToNewton(pos),ori);
 
 
 	
