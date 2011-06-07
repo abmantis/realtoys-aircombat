@@ -28,7 +28,7 @@ public:
 		Sets this plane's thrust.
 		@param thrust - use Airplane_Params::PITCHFORCE_X
 	*/
-	void setThrustForce(int thrust);
+	void setThrustForce(Ogre::Real thrust);
 	void increaseThrust();
 	void decreaseThrust();
 	void setPitchForce(Ogre::Real force);
@@ -108,10 +108,10 @@ private:
 	Ogre::Real mPlaneMass;			//airplane mass
 
 
-	int mThrustForce;				//force applied to go in front direction (thrust)
-	int mActualThrustForce;			//actual force applied to go in front direction (thrust)
-	int mPitchForce;				//force applied to pitch
-	int mRollForce;					//force applied to roll
+	Ogre::Real mThrustForce;				//force applied to go in front direction (thrust)
+	Ogre::Real mActualThrustForce;			//actual force applied to go in front direction (thrust)
+	Ogre::Real mPitchForce;				//force applied to pitch
+	Ogre::Real mRollForce;					//force applied to roll
 
 	float mTimeToGainControll;		//time remaining to get thrust, usually after a collision
 	float mTimeSinceLastUpdate;		//time since the last update to the actual on (only used by clients)
@@ -170,7 +170,9 @@ public:	//Replica3 functions
 		std::cout << "Serializing airplane construction - " << mOwnerID.ToString() << std::endl;
 
 		mBody->getPositionOrientation(mPosition, mOrientation);
-		mVelocity = mBody->getVelocity();
+		mPosition = RealToys::FromNewton(mPosition);
+		mOrientation = RealToys::FromNewton(mOrientation);
+		mVelocity = RealToys::FromNewton(mBody->getVelocity());
 
 		constructionBitstream->Write(mOwnerID);
 
@@ -290,7 +292,9 @@ public:	//Replica3 functions
 		else
 		{
 			mBody->getPositionOrientation(mPosition, mOrientation);
-			mVelocity = mBody->getVelocity();
+			mPosition = RealToys::FromNewton(mPosition);
+			mOrientation = RealToys::FromNewton(mOrientation);
+			mVelocity = RealToys::FromNewton(mBody->getVelocity());
 
 
 			if( mPrevShot1On != mShot1On )
@@ -390,20 +394,29 @@ public:	//Replica3 functions
 
 };
 
-enum Airplane_Params
-{
-	PITCHFORCE_0 = 0,
-	PITCHFORCE_1 = 200,
-	PITCHFORCE_2 = 400,
+//enum Airplane_Params
+//{
+//	//PITCHFORCE_0 = 0,
+//	//PITCHFORCE_1 = 4,
+//	PITCHFORCE_2 = 6,
+//
+//	THRUSTFORCE_0 = 30,
+//	THRUSTFORCE_1 = 60,
+//	THRUSTFORCE_2 = 80,
+//	THRUSTFORCE_3 = 100,
+//
+//	//ROLLFORCE_0 = 0,
+//	//ROLLFORCE_1 = 1,	//50
+//	ROLLFORCE_2 = 2		//100
+//};
 
-	THRUSTFORCE_0 = 3000,
-	THRUSTFORCE_1 = 5000,
-	THRUSTFORCE_2 = 7000,
-	THRUSTFORCE_3 = 10000,
+static const Ogre::Real	PITCHFORCE_2	= 0.06f;
 
-	ROLLFORCE_0 = 0,
-	ROLLFORCE_1 = 50,
-	ROLLFORCE_2 = 100
-};
+static const Ogre::Real	THRUSTFORCE_0	= 0.3f;
+static const Ogre::Real	THRUSTFORCE_1	= 0.6f;
+static const Ogre::Real	THRUSTFORCE_2	= 0.8f;
+static const Ogre::Real	THRUSTFORCE_3	= 1.0f;
+
+static const Ogre::Real	ROLLFORCE_2	= 0.013f;
 
 #endif

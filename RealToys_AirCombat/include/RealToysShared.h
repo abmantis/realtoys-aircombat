@@ -23,6 +23,8 @@ namespace RealToys
 	static const Ogre::String	logMessagePrefix			=	"[**REALTOYS_AC LOG**] ";
 
 	//static const PlayerID		serverPlayerID				=	RakNet::SystemAddress( "0.0.0.0", 0);
+
+	static const Ogre::Real			OgreNewtonFactor			=	100.0f;
 #pragma endregion
 
 	enum QueryFlags
@@ -49,6 +51,26 @@ namespace RealToys
 		BODYTYPE_SHOT1
 	};
 
+	static Ogre::Vector3 ToNewton(const Ogre::Vector3 vec)
+	{
+		return vec / OgreNewtonFactor;
+	}
+	static Ogre::Quaternion ToNewton(const Ogre::Quaternion quat)
+	{
+		/*return Ogre::Quaternion(quat.w / OgreNewtonFactor,
+			quat.x / OgreNewtonFactor,
+			quat.y / OgreNewtonFactor,
+			quat.z / OgreNewtonFactor);*/
+		return quat;
+	}
+	static Ogre::Vector3 FromNewton(const Ogre::Vector3 vec)
+	{
+		return vec * OgreNewtonFactor;
+	}
+	static Ogre::Quaternion FromNewton(const Ogre::Quaternion quat)
+	{
+		return quat;// * OgreNewtonFactor;
+	}
 };
 
 #endif

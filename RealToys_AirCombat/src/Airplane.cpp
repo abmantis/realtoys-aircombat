@@ -85,56 +85,56 @@ void createPlaneColisionFromMesh(Ogre::Entity* ent, OgreNewt::World* world)
 	OgreNewt::CollisionPtr collision;
 
 	//tailturn = 11
-	vertcount = vertFromSubMesh(ent->getSubEntity(11)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(11)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 2 ));
 	collVector.push_back(conColl);
 	//airsucker+cokpit = 5
-	vertcount = vertFromSubMesh(ent->getSubEntity(5)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(5)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 5));
 	collVector.push_back(conColl);
 	//mainbody = 4
-	vertcount = vertFromSubMesh(ent->getSubEntity(4)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(4)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 1));
 	collVector.push_back(conColl);
 	//tailwings = 8
-	vertcount = vertFromSubMesh(ent->getSubEntity(8)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(8)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 0.01));
 	collVector.push_back(conColl);
 	//leftwing = 2
-	vertcount = vertFromSubMesh(ent->getSubEntity(2)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(2)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
 	collVector.push_back(conColl);
 	//rightwing = 3
-	vertcount = vertFromSubMesh(ent->getSubEntity(3)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(3)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO));
 	collVector.push_back(conColl);
 	//wingdetails = 7
-	vertcount = vertFromSubMesh(ent->getSubEntity(7)->getSubMesh(),Ogre::Vector3::UNIT_SCALE,vertex);
+	vertcount = vertFromSubMesh(ent->getSubEntity(7)->getSubMesh(),RealToys::ToNewton(Ogre::Vector3::UNIT_SCALE),vertex);
 	conColl = OgreNewt::ConvexCollisionPtr(new OgreNewt::CollisionPrimitives::ConvexHull(world, 
 		vertex, vertcount, 0, Ogre::Quaternion::IDENTITY, Ogre::Vector3::ZERO, 10));
 	collVector.push_back(conColl);
 
 	//motor
 	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::ChamferCylinder(world,
-		2.5, 0.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,1,0)) , Ogre::Vector3(0,0,6.2)) );
+		2.5/RealToys::OgreNewtonFactor, 0.5/RealToys::OgreNewtonFactor, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,1,0)) , Ogre::Vector3(0,0,6.2/RealToys::OgreNewtonFactor)) );
 	collVector.push_back(collision);
 
 	//left landing gear
 	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(world, 
-		0.6, 2.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
-		Ogre::Vector3(2.9,-1.25,1.75)));
+		0.6/RealToys::OgreNewtonFactor, 2.5/RealToys::OgreNewtonFactor, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
+		RealToys::ToNewton(Ogre::Vector3(2.9,-1.25,1.75))));
 	collVector.push_back(collision);
 
 	//right landing gear
 	collision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Capsule(world, 
-		0.6, 2.5, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
-		Ogre::Vector3(-2.6,-1.25,1.75)));
+		0.6/RealToys::OgreNewtonFactor, 2.5/RealToys::OgreNewtonFactor, 0, Ogre::Quaternion(Ogre::Degree(90), Ogre::Vector3(0,0,1)),
+		RealToys::ToNewton(Ogre::Vector3(-2.6,-1.25,1.75))));
 	collVector.push_back(collision);
 
 	OgreNewt::CollisionPtr col( new OgreNewt::CollisionPrimitives::CompoundCollision(world, collVector, 0));
@@ -425,7 +425,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	if(mPlaneCreated)
 		return;
 
-	mPlaneMass = 50;
+	mPlaneMass = 0.5f; // 0.5kg
 	Ogre::String idStr(mOwnerID.ToString());
 	
 	mPlaneEntity = mSceneMgr->createEntity("plane" + Ogre::String(mOwnerID.ToString()),
@@ -488,6 +488,14 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	OgreNewt::CollisionSerializer colSer;
 	//mPlaneCollision = OgreNewt::CollisionPtr(new OgreNewt::CollisionPrimitives::Cylinder(mWorld, 3, 10, 0));
 	mPlaneCollision = colSer.importCollision((dsptr), mWorld);
+	
+	// scale the collision to Newton system
+	//Ogre::Matrix4 ogrematrix;
+	//float matrix[16];	
+	//ogrematrix.setScale(RealToys::ToNewton(Ogre::Vector3(1,1,1)));
+	//OgreNewt::Converters::Matrix4ToMatrix( ogrematrix, matrix );
+	//NewtonConvexHullModifierSetMatrix( mPlaneCollision->getNewtonCollision(), matrix ); 
+	
 
 	//conCollision = boost::dynamic_pointer_cast<OgreNewt::ConvexCollision>( collision );
 
@@ -520,7 +528,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix + "Airplane created");
 }
 
-void Airplane::setThrustForce(int thrust)
+void Airplane::setThrustForce(Ogre::Real thrust)
 {	
 
 	mThrustForce = thrust;
@@ -599,13 +607,13 @@ void Airplane::AfterCollisionCallback(OgreNewt::Body* body, float timeStep, int 
 		
 		//apply pitch
 		force = Ogre::Vector3(0, mPitchForce, 0);
-		body->addLocalForce(force, mMotorPosition);
+		body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
 		//body->addLocalForce(force*-1, -mMotorPosition);	
 		
 		//apply roll
 		force = Ogre::Vector3(0, mRollForce, 0);
-		body->addLocalForce(force, mWingPosition);
-		body->addLocalForce(force*-1, -mWingPosition);
+		body->addLocalForce(force, RealToys::ToNewton(mWingPosition));
+		body->addLocalForce(force*-1, RealToys::ToNewton(-mWingPosition));
 		
 	}
 	else
@@ -619,31 +627,31 @@ void Airplane::AfterCollisionCallback(OgreNewt::Body* body, float timeStep, int 
 }
 void Airplane::NormalMotionCallback(OgreNewt::Body* body, float timeStep, int threadIndex )
 {	
-	if(mActualThrustForce < mThrustForce - 50)
+	Ogre::Real interv = ((float) THRUSTFORCE_0) / 60.0f;
+	if(mActualThrustForce < mThrustForce - interv)
 	{
-		mActualThrustForce += 50;
+		mActualThrustForce += interv;
 	}
-	else if(mActualThrustForce > mThrustForce + 50)
+	else if(mActualThrustForce > mThrustForce + interv)
 	{
-		mActualThrustForce -= 50;
+		mActualThrustForce -= interv;
 	}
 	Ogre::Vector3 force;
 
-	
 	//apply thrust
 	force = Ogre::Vector3(0,0, mActualThrustForce);
-	body->addLocalForce(force, mMotorPosition);		
+	body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));		
 		
 
 	//apply pitch
 	force = Ogre::Vector3(0, mPitchForce, 0);
-	body->addLocalForce(force, mMotorPosition);
+	body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
 	//body->addLocalForce(force*-1, -mMotorPosition);	
 	
 	//apply roll
 	force = Ogre::Vector3(0, mRollForce, 0);
-	body->addLocalForce(force, mWingPosition);
-	body->addLocalForce(force*-1, -mWingPosition);
+	body->addLocalForce(force, RealToys::ToNewton(mWingPosition));
+	body->addLocalForce(force*-1, RealToys::ToNewton(-mWingPosition));
 
 	/*Ogre::Radian addedRot( (mActualThrustForce*0.03f)/THRUSTFORCE_3*1.0f );
 	
@@ -679,7 +687,7 @@ void Airplane::getPositionOrientation(Ogre::Vector3 &position, Ogre::Quaternion 
 void Airplane::getVelocity(Ogre::Vector3 &vel)
 {
 	if(mServer)
-		vel = mBody->getVelocity();
+		vel = RealToys::FromNewton(mBody->getVelocity());
 	else
 		vel = mVelocity;
 }
@@ -717,12 +725,14 @@ void Airplane::update(Ogre::Real timeSinceLastFrame)
 	if(mServer)
 	{
 		mBody->getPositionOrientation(mPosition, mOrientation);
-		mVelocity = mBody->getVelocity();
+		mPosition = RealToys::FromNewton(mPosition);
+		mOrientation = RealToys::FromNewton(mOrientation);
+		mVelocity = RealToys::FromNewton(mBody->getVelocity());
 	}
 	else
 	{
 		mPosition += mVelocity * timeSinceLastFrame;	
-		mBody->setPositionOrientation(mPosition, mOrientation);
+		mBody->setPositionOrientation(RealToys::ToNewton(mPosition), RealToys::ToNewton(mOrientation));
 	}
 	mTimeSinceLastUpdate = timeSinceLastFrame;
 
@@ -822,6 +832,9 @@ void Airplane::die()
 }
 void Airplane::born(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
 {
+	position = Ogre::Vector3::ZERO;
+	position.y = 400;
+
 	mPosition = position;
 	mOrientation = orientation;
 
@@ -829,14 +842,15 @@ void Airplane::born(Ogre::Vector3 &position, Ogre::Quaternion &orientation)
 	mBody->attachNode(mPlaneNode);
 	mBody->setUserData(Ogre::Any(this));
 	mBody->setMassMatrix(mPlaneMass, mPlaneInertia);	
-	mBody->setCenterOfMass(mPlaneCenterOfMass);
+	mBody->setCenterOfMass(RealToys::ToNewton(mPlaneCenterOfMass));
 	mBody->setContinuousCollisionMode(1); 
 	mBody->setAngularDamping(Ogre::Vector3(1,1,1));
 	mBody->setLinearDamping(1);
-	mBody->setPositionOrientation(position, orientation);
-	//mBody->setPositionOrientation(position, Ogre::Quaternion(0.943156, 0.28065, 0.177861, 0.00761348));
+	mBody->setPositionOrientation(RealToys::ToNewton(position), RealToys::ToNewton(orientation));
 	mBody->setType(RealToys::BODYTYPE_AIRPLANE);
 	mBody->setMaterialGroupID(NewtonMaterialManager::getSingletonPtr()->getMaterialID(NME_AIRPLANE));
+	mBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);
+	mBody->setAutoSleep(0);
 
 	setNormalMotionForceCallback();
 
