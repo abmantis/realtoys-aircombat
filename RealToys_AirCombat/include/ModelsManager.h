@@ -13,8 +13,8 @@ public:
 		PhysicsBodyDataStructure()
 		{
 			collisionType = CONVEX;
-			mass = 0.5f;
-			gravity = -2.8f;
+			mass = 1;
+			gravity = -9.8f;
 
 			//collisionType = TREE;
 			//mass = 0;
