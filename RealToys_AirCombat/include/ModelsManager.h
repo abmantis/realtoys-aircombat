@@ -12,13 +12,13 @@ public:
 	{
 		PhysicsBodyDataStructure()
 		{
-			collisionType = CONVEX;
+			/*collisionType = CONVEX;
 			mass = 1;
-			gravity = -9.8f;
+			gravity = -9.8f;*/
 
-			//collisionType = TREE;
-			//mass = 0;
-			//gravity = 0;
+			collisionType = TREE;
+			mass = 0;
+			gravity = 0;
 		}
 
 		PhysicsBodyDataStructure(PhysicsBodyTypes collisionType,

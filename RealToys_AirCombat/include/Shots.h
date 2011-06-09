@@ -26,7 +26,8 @@ public:
 		//mShotNode->setOrientation(direction);
 		//mShotNode->setPosition(position);
 
-		Ogre::Real mass = 0.01f;
+
+		Ogre::Real mass = 0.1f;
 		mBody = new OgreNewt::Body(mWorld, collision);
 		mBody->attachNode(mShotNode);
 		mBody->setOgreUpdateScaleFactor(RealToys::OgreNewtonFactor);

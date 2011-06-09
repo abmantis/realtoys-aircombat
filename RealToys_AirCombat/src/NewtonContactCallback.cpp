@@ -147,9 +147,11 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 	OgreNewt::Body* body1 = contactJoint.getBody1();
 	Shot1 *shot = 0;
 	Airplane *plane = 0;
+	OgreNewt::Body* bodyNotBullet = NULL;
 	
 	if(body0->getType() == RealToys::BODYTYPE_SHOT1)
 	{
+		bodyNotBullet = body1;
 		shot = Ogre::any_cast<Shot1*>(body0->getUserData());
 		
 		if(shot->mNew && body1->getType() == RealToys::BODYTYPE_AIRPLANE)
@@ -159,6 +161,7 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 	}
 	else if(body1->getType() == RealToys::BODYTYPE_SHOT1)
 	{
+		bodyNotBullet = body0;
 		shot = Ogre::any_cast<Shot1*>(body1->getUserData());
 		
 		if(shot->mNew && body0->getType() == RealToys::BODYTYPE_AIRPLANE)
@@ -183,6 +186,7 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 			actualContact.getPositionAndNormal(pos,norm);
 			pos = RealToys::FromNewton(pos);
 			norm = RealToys::FromNewton(norm);
+			norm.normalise();
 
 			mParticlesManager->requestShotHitParticles(pos, norm);
 			
@@ -211,11 +215,18 @@ void Shot1ContactCallback::contactsProcess( OgreNewt::ContactJoint &contactJoint
 				soundToPlay->play();				
 			}		
 		}
-		while(actualContact)
+
+		Ogre::Real mass;
+		Ogre::Vector3 inertia;
+		bodyNotBullet->getMassMatrix(mass, inertia);
+		if(plane || mass <= 0.00001f )
 		{
-			nextContact = nextContact.getNext();
-			actualContact.remove();
-			actualContact = nextContact;
-		}
+			while(actualContact)
+			{
+				nextContact = nextContact.getNext();
+				actualContact.remove();
+				actualContact = nextContact;
+			}
+		}	
 	}	
 }

@@ -427,7 +427,7 @@ void Airplane::createPlane(Ogre::Vector3 position, Ogre::Quaternion orientation)
 	if(mPlaneCreated)
 		return;
 
-	mPlaneMass = 0.5f; // 0.5kg
+	mPlaneMass = 5.0f; //0.5f; // 0.5kg
 	Ogre::String idStr(mOwnerID.ToString());
 	
 	mPlaneEntity = mSceneMgr->createEntity("plane" + Ogre::String(mOwnerID.ToString()),

@@ -412,13 +412,13 @@ public:	//Replica3 functions
 //	ROLLFORCE_2 = 2		//100
 //};
 
-static const Ogre::Real	PITCHFORCE_2	= 0.06f;
+static const Ogre::Real	PITCHFORCE_2	= 0.6f;
 
-static const Ogre::Real	THRUSTFORCE_0	= 0.3f;
-static const Ogre::Real	THRUSTFORCE_1	= 0.6f;
-static const Ogre::Real	THRUSTFORCE_2	= 0.8f;
-static const Ogre::Real	THRUSTFORCE_3	= 1.0f;
+static const Ogre::Real	THRUSTFORCE_0	= 3.0f;
+static const Ogre::Real	THRUSTFORCE_1	= 6.0f;
+static const Ogre::Real	THRUSTFORCE_2	= 8.0f;
+static const Ogre::Real	THRUSTFORCE_3	= 10.0f;
 
-static const Ogre::Real	ROLLFORCE_2	= 0.013f;
+static const Ogre::Real	ROLLFORCE_2	= 0.13f;
 
 #endif

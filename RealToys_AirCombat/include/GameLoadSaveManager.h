@@ -100,7 +100,7 @@ private:
 		Ogre::Vector3 &scale, Ogre::Quaternion &orientation);
 
 	bool ReadPhysicsInfoAttributes(xmlNodePtr physicsnode, 
-		ModelsManager::PhysicsBodyDataStructure physicsDataStructure);
+		ModelsManager::PhysicsBodyDataStructure &physicsDataStructure);
 	
 	/**
 	* ConvertInput:

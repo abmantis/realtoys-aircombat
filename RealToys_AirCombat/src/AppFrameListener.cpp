@@ -820,7 +820,7 @@ void AppFrameListener::processInterSenseInput( Ogre::Real timeSinceLastFrame )
 	
 	if(mInputState == INPUTSTATE_INGAME && mAirplane)
 	{		
-		mAirplane->setPitchForce( (PITCHFORCE_2 * -icube.GetPitch()) / 45.0f); // people would not raise their head much more than 45degrees
-		mAirplane->setRollForce ( (ROLLFORCE_2 * -icube.GetRoll()) / 45.0f);
+		mAirplane->setPitchForce( (PITCHFORCE_2 * -icube.GetPitch()) / 35.0f);
+		mAirplane->setRollForce ( (ROLLFORCE_2 * -icube.GetRoll()) / 35.0f);
 	}
 }

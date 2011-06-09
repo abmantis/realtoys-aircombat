@@ -227,7 +227,7 @@ bool GameLoadSaveManager::ReadDecoModels(xmlNodePtr parent, Ogre::String mapName
 {
 	Ogre::LogManager::getSingletonPtr()->logMessage(RealToys::logMessagePrefix 
 		+ "Reading deco models from map");
-	xmlNodePtr child, no = findChildByName(parent, "DecoModel");
+	xmlNodePtr child, top_scene_node, no = findChildByName(parent, "DecoModel");
 	if(!no)
 		return true;
 	no = no->children;
@@ -235,11 +235,14 @@ bool GameLoadSaveManager::ReadDecoModels(xmlNodePtr parent, Ogre::String mapName
 	Ogre::Vector3 position1, position2, scale1, scale2;
 	Ogre::Quaternion orientation1, orientation2;
 	xmlChar* attrRet;
+	
 
 	mModelsMan->clearAll();
 
 	for(; no; no = no->next)	//for each DecoModel node
 	{
+		ModelsManager::PhysicsBodyDataStructure physicsDataStrct;
+
 		while(no && no->type != XML_ELEMENT_NODE){no=no->next;}		//ignores "text" nodes
 		if(!no) break;
 
@@ -254,6 +257,8 @@ bool GameLoadSaveManager::ReadDecoModels(xmlNodePtr parent, Ogre::String mapName
 		
 		if(child)
 		{
+			top_scene_node = child;
+
 			if(!ReadSceneNodeInfoAttributes(child, position1, scale1, orientation1))
 				return false;
 
@@ -266,9 +271,22 @@ bool GameLoadSaveManager::ReadDecoModels(xmlNodePtr parent, Ogre::String mapName
 			{
 				if(!ReadSceneNodeInfoAttributes(child, position2, scale2, orientation2))
 					return false;
-				mModelsMan->addModel(mesh, position1, scale1, orientation1, position2, scale2, orientation2, mapName);
 			}	
-		}		
+		}
+		
+		//get the physics node
+		child = top_scene_node->next;
+		while(child && child->type != XML_ELEMENT_NODE)
+		{child= child->next;}	//ignores "text" nodes
+
+		if(child)
+		{
+			if(!ReadPhysicsInfoAttributes(child, physicsDataStrct))
+				physicsDataStrct = ModelsManager::PhysicsBodyDataStructure();
+		}
+
+		mModelsMan->addModel(mesh, position1, scale1, orientation1, 
+			position2, scale2, orientation2, mapName, physicsDataStrct);
 	}	
 	return true;
 }
@@ -377,25 +395,32 @@ bool GameLoadSaveManager::ReadSceneNodeInfoAttributes(xmlNodePtr scenenode, Ogre
 }
 
 bool GameLoadSaveManager::ReadPhysicsInfoAttributes(xmlNodePtr physicsnode, 
-	ModelsManager::PhysicsBodyDataStructure physicsDataStructure)
+	ModelsManager::PhysicsBodyDataStructure &physicsDataStructure)
 {
-	//Ogre::String str;
-	//xmlChar* attRet;
+	Ogre::String str;
+	xmlChar* attRet;
 
-	//attRet = xmlGetProp(scenenode, (xmlChar*)"Position");
-	//if(attRet == NULL) return false;
-	//str = (char*)attRet;
-	//position = Ogre::StringConverter::parseVector3(str);
+	attRet = xmlGetProp(physicsnode, (xmlChar*)"Type");
+	if(attRet == NULL) return false;
+	str = (char*)attRet;
+	if(str == "CONVEX")
+	{
+		physicsDataStructure.collisionType = ModelsManager.CONVEX;
+	}
+	else
+	{
+		return false;
+	}
 
-	//attRet = xmlGetProp(scenenode, (xmlChar*)"Scale");
-	//if(attRet == NULL) return false;
-	//str = (char*)attRet;
-	//scale = Ogre::StringConverter::parseVector3(str);
+	attRet = xmlGetProp(physicsnode, (xmlChar*)"Mass");
+	if(attRet == NULL) return false;
+	str = (char*)attRet;
+	physicsDataStructure.mass = Ogre::StringConverter::parseReal(str);
 
-	//attRet = xmlGetProp(scenenode, (xmlChar*)"Orientation");
-	//if(attRet == NULL) return false;
-	//str = (char*)attRet;
-	//orientation = Ogre::StringConverter::parseQuaternion(str);
+	attRet = xmlGetProp(physicsnode, (xmlChar*)"Gravity");
+	if(attRet == NULL) return false;
+	str = (char*)attRet;
+	physicsDataStructure.gravity = Ogre::StringConverter::parseReal(str);
 
 	return true;
 }
