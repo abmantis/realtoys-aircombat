@@ -269,8 +269,9 @@ void RealToysAirCombat::setupScene()
 	else
 	{
 		Ogre::OverlayManager::getSingletonPtr()->getByName("RealToys/PopupMessageOverlay")->show();
+		mRoot->renderOneFrame();
 		Ogre::OverlayManager::getSingletonPtr()->getOverlayElement("RealToys/PopupMessageText")
-			->setCaption("Press SPACE to start!");
+			->setCaption("   Press SPACE to start!");
 	}
 
 

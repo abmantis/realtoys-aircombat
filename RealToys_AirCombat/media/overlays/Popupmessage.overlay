@@ -31,7 +31,6 @@ RealToys/PopupMessageOverlay
 			horz_align left
 			top -20
 			left 10
-			caption test box
 			font_name BlueHighway
 			char_height 40
 			colour_top 0.8 0.8 1.0
