@@ -603,7 +603,7 @@ void Airplane::AfterCollisionCallback(OgreNewt::Body* body, float timeStep, int 
 
 
 	//apply pitch
-	force = Ogre::Vector3(0, (PITCHFORCE_2*100.0f ), 0);
+	force = Ogre::Vector3(0, (PITCHFORCE_2*150.0f ), 0);
 	body->addLocalForce(force, RealToys::ToNewton(mMotorPosition));
 
 	//apply roll
